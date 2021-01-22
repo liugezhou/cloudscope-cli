@@ -4,6 +4,5 @@ node_modules
 .DS_Store
 
 packages/**/node_modules
-packages/**/package-lock.json
-
+lerna-debug.log
 
