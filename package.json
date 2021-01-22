@@ -1,7 +1,7 @@
 {
   "name": "cloudscope-cli",
   "version": "1.0.3",
-  "description": "imooc-cli",
+  "description": "cloudscope-cli",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
