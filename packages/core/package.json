@@ -1,13 +1,13 @@
 {
   "name": "@cloudscope-cli/core",
-  "version": "1.0.3",
+  "version": "1.0.1",
   "description": "cloudscope-cli core",
   "author": "liumingzhou <18231133236@163.com>",
   "homepage": "",
   "license": "ISC",
   "main": "lib/core.js",
-  "bin":{
-    "cloudscope-cli":"bin/index.js"
+  "bin": {
+    "cloudscope-cli": "bin/index.js"
   },
   "directories": {
     "lib": "lib",
@@ -20,11 +20,11 @@
     "test": "echo \"Run core \" "
   },
   "dependencies": {
-    "@cloudscope/utils": "^1.0.2",
+    "@cloudscope/utils": "^1.0.1",
     "lodash": "^4.17.20"
   },
   "gitHead": "2d58ba7020b70cfe35bb8de5a3dd25a51699717d",
   "publishConfig": {
-    "access":"public"
+    "access": "public"
   }
 }
