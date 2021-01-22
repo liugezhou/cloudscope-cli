@@ -1,0 +1,22 @@
+{
+  "name": "@cloudscope/command",
+  "version": "1.0.0",
+  "description": "> TODO: description",
+  "author": "liumingzhou <18231133236@163.com>",
+  "homepage": "",
+  "license": "ISC",
+  "main": "lib/command.js",
+  "directories": {
+    "lib": "lib",
+    "test": "__tests__"
+  },
+  "files": [
+    "lib"
+  ],
+  "scripts": {
+    "test": "echo \"Run command \" "
+  },
+  "dependencies": {
+    "lodash": "^4.17.20"
+  }
+}
