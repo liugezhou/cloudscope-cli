@@ -1,3 +1,6 @@
 #! /usr/bin/env node
 
-console.log('Hello cloudscope-cli')
+index()
+function index(){
+  console.log('Hello cloudscope-cli')
+}
