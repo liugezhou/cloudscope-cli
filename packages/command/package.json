@@ -1,6 +1,6 @@
 {
   "name": "@cloudscope/command",
-  "version": "1.0.2",
+  "version": "1.0.0",
   "description": "> TODO: description",
   "author": "liumingzhou <18231133236@163.com>",
   "homepage": "",
@@ -19,5 +19,8 @@
   "dependencies": {
     "lodash": "^4.17.20"
   },
-  "gitHead": "2d58ba7020b70cfe35bb8de5a3dd25a51699717d"
+  "gitHead": "2d58ba7020b70cfe35bb8de5a3dd25a51699717d",
+  "publishConfig": {
+    "access":"public"
+  }
 }
