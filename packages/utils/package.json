@@ -1,6 +1,6 @@
 {
   "name": "@cloudscope-cli/utils",
-  "version": "1.0.1",
+  "version": "1.0.4",
   "description": "@cloudscope-cli utils",
   "author": "liumingzhou <18231133236@163.com>",
   "homepage": "",
@@ -15,8 +15,6 @@
   ],
   "scripts": {
     "test": "echo \"Run utils \" "
-  },
-  "dependencies": {
   },
   "gitHead": "2d58ba7020b70cfe35bb8de5a3dd25a51699717d",
   "publishConfig": {
