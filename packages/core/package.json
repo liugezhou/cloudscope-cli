@@ -6,6 +6,9 @@
   "homepage": "",
   "license": "ISC",
   "main": "lib/core.js",
+  "bin":{
+    "cloudscope-cli":"bin/index.js"
+  },
   "directories": {
     "lib": "lib",
     "test": "__tests__"
@@ -19,5 +22,6 @@
   "dependencies": {
     "@cloudscope/utils": "^1.0.2",
     "lodash": "^4.17.20"
-  }
+  },
+  "gitHead": "2d58ba7020b70cfe35bb8de5a3dd25a51699717d"
 }
