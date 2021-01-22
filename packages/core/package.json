@@ -1,6 +1,6 @@
 {
   "name": "@cloudscope-cli/core",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "cloudscope-cli core",
   "author": "liumingzhou <18231133236@163.com>",
   "homepage": "",
@@ -17,7 +17,7 @@
     "test": "echo \"Run core \" "
   },
   "dependencies": {
-    "@cloudscope/utils": "^1.0.1",
+    "@cloudscope/utils": "^1.0.2",
     "lodash": "^4.17.20"
   }
 }
