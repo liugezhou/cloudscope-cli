@@ -1,7 +1,6 @@
 'use strict';
 
-module.exports = utils;
+module.exports = index;
 
-function utils() {
-    // TODO
+function index() {
 }
