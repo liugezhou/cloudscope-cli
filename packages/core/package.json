@@ -20,7 +20,7 @@
     "test": "echo \"Run core \" "
   },
   "dependencies": {
-    "@cloudscope/utils": "^1.0.1",
+    "@cloudscope-cli/utils": "file:../utils",
     "lodash": "^4.17.20"
   },
   "gitHead": "2d58ba7020b70cfe35bb8de5a3dd25a51699717d",
