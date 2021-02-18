@@ -99,4 +99,8 @@ function checkArgs(){
     log.level = process.env.LOG_LEVEL
 }
 
+//命令注册
+function registerCommand(){
+
+}
 module.exports = core;
