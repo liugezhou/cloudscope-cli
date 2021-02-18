@@ -14,33 +14,45 @@ let args;
 
 async function core() {
     try {
-        checkPkgVersion()
-        checkNodeVersion()
-        rootCheck()
-        checkUserHome()
-        checkInputArgs()
-        checkEnv()
-        await checkGlobalUpdate()
+        checkPkgVersion()    // 检查包版本
+        checkNodeVersion()  // 检查包版本
+        rootCheck()             // root账号启动检查和自动降级
+        checkUserHome()     //检查用户主目录
+        checkInputArgs()      // 检查输入参数是否为debug模式
+        checkEnv()              // 检查环境变量
+        await checkGlobalUpdate() //检查是否需要全局更新
     } catch (e) {
         log.error(e.message)
     }
     
 }
 
-//检查是否需要全局更新
-async function checkGlobalUpdate(){
-    const currentPkgVersion = pkg.version
-    const npmName = pkg.name
-    const { getLatestVersion } = require('@cloudscope-cli/get-npm-info')
-    // const versions = await getNpmSemverVersion(currentPkgVersion,npmName)
-    const lastVersion = await getLatestVersion('@imooc-cli/core')
-    if(lastVersion && semver.gt(lastVersion,currentPkgVersion)){
-        log.warn('更新提示:',colors.yellow(`请手动更新${npmName}，当前版本：${currentPkgVersion},最新版本为：${lastVersion}
-          更新命令为: npm install -g ${npmName}）`))
+function checkPkgVersion(){
+    log.notice('version:',pkg.version)
+}
+function checkNodeVersion(){
+    const currentNodeVersion = process.version
+    const lowestNodeVersion = constant.LOWEST_NODE_VERSION
+    if(semver.ltr(currentNodeVersion, lowestNodeVersion)) {
+        throw new Error(colors.red(`cloudscope-cli 需要安装 v${lowestNodeVersion}以上版本的node.js`))
     }
 }
 
-// 检查环境变量
+function checkUserHome(){
+    if( !userHome || !pathExists(userHome)){
+        throw new Error(colors.red('当前登录用户主目录不存在'))
+    }
+}
+function rootCheck() {
+    const rootCheck = require('root-check');
+    rootCheck(); 
+}
+function checkInputArgs(){
+    const minimist = require('minimist')
+    args = minimist(process.argv.slice(2))
+    checkArgs()
+}
+
 function checkEnv(){
     const dotenv = require('dotenv')
     const dotenvPath =  path.resolve(userHome,'.env') 
@@ -51,6 +63,18 @@ function checkEnv(){
     }
     createDefaultConfig()
     log.verbose('环境变量',process.env.CLI_HOME_PATH)
+}
+
+async function checkGlobalUpdate(){
+    const currentPkgVersion = pkg.version
+    const npmName = pkg.name
+    const { getLatestVersion } = require('@cloudscope-cli/get-npm-info')
+    // const versions = await getNpmSemverVersion(currentPkgVersion,npmName)
+    const lastVersion = await getLatestVersion('@cloudscope-cli/core')
+    if(lastVersion && semver.gt(lastVersion,currentPkgVersion)){
+        log.warn('更新提示:',colors.yellow(`请手动更新${npmName}，当前版本：${currentPkgVersion},最新版本为：${lastVersion}
+          更新命令为: npm install -g ${npmName}）`))
+    }
 }
 
 // 创建默认.env文件
@@ -66,13 +90,6 @@ function createDefaultConfig(){
     process.env.CLI_HOME_PATH = cliConfig['cliHome']
 }
 
-// 检查输入参数是否为debug模式
-function checkInputArgs(){
-    const minimist = require('minimist')
-    args = minimist(process.argv.slice(2))
-    checkArgs()
-}
-
 function checkArgs(){
     if(args.debug){
         process.env.LOG_LEVEL = 'verbose'
@@ -80,30 +97,6 @@ function checkArgs(){
         process.env.LOG_LEVEL = 'info'
     }
     log.level = process.env.LOG_LEVEL
-}
-//检查用户主目录
-function checkUserHome(){
-    if( !userHome || !pathExists(userHome)){
-        throw new Error(colors.red('当前登录用户主目录不存在'))
-    }
-}
-// root账号启动检查和自动降级
-function rootCheck() {
-    const rootCheck = require('root-check');
-    rootCheck(); 
-}
-
-// 检查包版本
-function checkNodeVersion(){
-    const currentNodeVersion = process.version
-    const lowestNodeVersion = constant.LOWEST_NODE_VERSION
-    if(semver.ltr(currentNodeVersion, lowestNodeVersion)) {
-        throw new Error(colors.red(`cloudscope-cli 需要安装 v${lowestNodeVersion}以上版本的node.js`))
-    }
-}
-// 检查包版本
-function checkPkgVersion(){
-    log.notice('version:',pkg.version)
 }
 
 module.exports = core;
