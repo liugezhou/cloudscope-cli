@@ -12,23 +12,15 @@ const init = require('@cloudscope-cli/init')
 const pkg = require('../package.json')
 const constant  = require('./constant')
 
-let args;
 const program = new commander.Command()
 
 async function core() {
     try {
-        checkPkgVersion()    // 检查包版本
-        checkNodeVersion()  // 检查包版本
-        rootCheck()             // root账号启动检查和自动降级
-        checkUserHome()     //检查用户主目录
-        // checkInputArgs()      // 检查输入参数是否为debug模式
-        checkEnv()              // 检查环境变量
-        await checkGlobalUpdate() //检查是否需要全局更新
+        await prepare()
         registerCommand()       // 脚手架命令注册    
     } catch (e) {
         log.error(e.message)
     }
-    
 }
 
 function checkPkgVersion(){
@@ -51,11 +43,6 @@ function rootCheck() {
     const rootCheck = require('root-check');
     rootCheck(); 
 }
-function checkInputArgs(){
-    const minimist = require('minimist')
-    args = minimist(process.argv.slice(2))
-    checkArgs()
-}
 
 function checkEnv(){
     const dotenv = require('dotenv')
@@ -66,7 +53,6 @@ function checkEnv(){
         })
     }
     createDefaultConfig()
-    log.verbose('环境变量',process.env.CLI_HOME_PATH)
 }
 
 async function checkGlobalUpdate(){
@@ -94,14 +80,6 @@ function createDefaultConfig(){
     process.env.CLI_HOME_PATH = cliConfig['cliHome']
 }
 
-function checkArgs(){
-    if(args.debug){
-        process.env.LOG_LEVEL = 'verbose'
-    } else {
-        process.env.LOG_LEVEL = 'info'
-    }
-    log.level = process.env.LOG_LEVEL
-}
 
 //命令注册
 function registerCommand(){
@@ -109,7 +87,8 @@ function registerCommand(){
         .name(Object.keys(pkg.bin)[0])
         .usage('<command> [options]')
         .version(pkg.version)
-        .option('-d, --debug', '是否开启调试模式', false);
+        .option('-d, --debug', '是否开启调试模式', false)
+        .option('-tp, --targetPath <targetPath>','是否指定本地调试文件路径','')
 
     program
     .command('init [projectName]')
@@ -124,7 +103,11 @@ function registerCommand(){
         }
         log.level = process.env.LOG_LEVEL
     })
-    
+
+    //指定targetPath
+    program.on('option:targetPath',function(){
+        process.env.CLI_TARGET_PATH = program.opts().targetPath 
+    })
     // 对未知命令监听
     program.on('command:*',function(obj){
         const availableCommands = program.commands.map(cmd => cmd.name())
@@ -140,5 +123,14 @@ function registerCommand(){
         program.outputHelp();
         console.log()
     }
+}
+
+async function prepare(){
+    checkPkgVersion()    // 检查包版本
+    checkNodeVersion()  // 检查包版本
+    rootCheck()             // root账号启动检查和自动降级
+    checkUserHome()     //检查用户主目录
+    checkEnv()              // 检查环境变量
+    await checkGlobalUpdate() //检查是否需要全局更新
 }
 module.exports = core;
