@@ -30,6 +30,9 @@ class Package {
     get cacheFilePath() {
         return path.resolve(this.storeDir,`_${this.cacheFilePathPrefix}@${this.packageVersion}@${this.packageName}`)
     }
+    getSpecificCacheFilePath(packageVersion){
+      return path.resolve(this.storeDir,`_${this.cacheFilePathPrefix}@${packageVersion}@${this.packageName}`)
+  }
 
     async prepare(){
       if(this.storeDir && !pathExists(this.storeDir)){
@@ -38,15 +41,15 @@ class Package {
       if(this.packageVersion === 'latest'){
           this.packageVersion = await getNpmLatestVersion(this.packageName);
       }
-  }
+    }
 
     // 判断当前Package是否存在
     async exists(){
         if(this.storeDir){
-          await this.prepare()
+          await this.prepare() 
           return pathExists(this.cacheFilePath);
         }else{
-            return pathExists(this.targetPath);
+          return pathExists(this.targetPath);
         }
     }
 
@@ -57,15 +60,35 @@ class Package {
         root: this.targetPath,
         storeDir: this.storeDir,
         registry:getDefaultRegistry(),
-        pkg:{
+        pkgs:[{
           name:this.packageName,
           version:this.packageVersion
-        }
+        }]
       })
     }
     //更新Package
-    update(){
-
+    async update(){
+      //获取最新的npm模块版本号
+      const latestPackageVersion = await getNpmLatestVersion(this.packageName);
+      // 查询最新版本号对应的路径是否存在
+      const latestFilePath = this.getSpecificCacheFilePath(latestPackageVersion)
+      // 如果不存在，则直接安装最新版本
+      if(!pathExists(latestFilePath)){
+          await npminstall({
+              root:this.targetPath,
+              storeDir:this.storeDir,
+              registry:getDefaultRegistry(),
+              pkgs:[{
+                      name:this.packageName,
+                      version:latestPackageVersion
+                      }
+              ]
+          })
+          this.packageVersion = latestPackageVersion
+      }else{
+          this.packageVersion = latestPackageVersion
+      }
+      return latestFilePath;
     }
 
     //获取入口文件路径

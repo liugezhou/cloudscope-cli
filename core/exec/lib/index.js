@@ -51,11 +51,12 @@ async function exec() {
          packageName,
          packageVersion
       })
-      const rootFile = pkg.getRootFilePath();
+    }
+    const rootFile = pkg.getRootFilePath();
+      console.log(rootFile)
       if(rootFile){
          require(rootFile).apply(null,arguments);
       }
-    }
 }
 
 module.exports = exec;
