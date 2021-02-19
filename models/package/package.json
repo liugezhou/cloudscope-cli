@@ -25,5 +25,9 @@
   },
   "bugs": {
     "url": "https://github.com/liugezhou/cloudscope-cli/issues"
+  },
+  "dependencies": {
+    "@liugezhou-cli-dev/get-npm-info": "file:../../utils/get-npm-info",
+    "@liugezhou-cli-dev/utils": "file:../../utils/utils"
   }
 }
