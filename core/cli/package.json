@@ -20,9 +20,10 @@
     "test": "echo \"Run core \" "
   },
   "dependencies": {
-    "@cloudscope-cli/log": "file:../../utils/log",
     "@cloudscope-cli/get-npm-info": "file:../../utils/get-npm-info",
+    "@cloudscope-cli/log": "file:../../utils/log",
     "colors": "^1.4.0",
+    "commander": "^7.0.0",
     "dotenv": "^8.2.0",
     "import-local": "^3.0.2",
     "minimist": "^1.2.5",

@@ -3,6 +3,7 @@ const semver = require('semver')
 const colors = require('colors/safe')
 const userHome = require('user-home')
 const pathExists = require('path-exists').sync
+const commander = require('commander')
 
 const path = require('path')
 const log = require('@cloudscope-cli/log')
@@ -11,6 +12,7 @@ const pkg = require('../package.json')
 const constant  = require('./constant')
 
 let args;
+const program = new commander.Command()
 
 async function core() {
     try {
@@ -18,9 +20,10 @@ async function core() {
         checkNodeVersion()  // 检查包版本
         rootCheck()             // root账号启动检查和自动降级
         checkUserHome()     //检查用户主目录
-        checkInputArgs()      // 检查输入参数是否为debug模式
+        // checkInputArgs()      // 检查输入参数是否为debug模式
         checkEnv()              // 检查环境变量
         await checkGlobalUpdate() //检查是否需要全局更新
+        registerCommand()       // 脚手架命令注册    
     } catch (e) {
         log.error(e.message)
     }
@@ -28,7 +31,7 @@ async function core() {
 }
 
 function checkPkgVersion(){
-    log.notice('version:',pkg.version)
+    log.info('cloudscope-cli version:',pkg.version)
 }
 function checkNodeVersion(){
     const currentNodeVersion = process.version
@@ -101,6 +104,36 @@ function checkArgs(){
 
 //命令注册
 function registerCommand(){
+    program
+        .name(Object.keys(pkg.bin)[0])
+        .usage('<command> [options]')
+        .version(pkg.version)
+        .option('-d, --debug', '是否开启调试模式', false);
 
+     // 开启debug模式
+     program.on('option:debug',function(){
+        if(program.opts().debug){
+            process.env.LOG_LEVEL='verbose'
+        }else{
+            process.env.LOG_LEVEL='info'
+        }
+        log.level = process.env.LOG_LEVEL
+    })
+    
+    // 对未知命令监听
+    program.on('command:*',function(obj){
+        const availableCommands = program.commands.map(cmd => cmd.name())
+        console.log(colors.red('未知的命令：'+obj[0]))
+        if(availableCommands.length > 0){
+            console.log(colors.red('可用命令为：'+availableCommands.join(',')))
+        }
+    })
+ 
+
+    program.parse(program.argv)
+    if(program.args && program.args.length < 1) {
+        program.outputHelp();
+        console.log()
+    }
 }
 module.exports = core;
