@@ -21,6 +21,9 @@ async function core() {
         registerCommand()       // 脚手架命令注册    
     } catch (e) {
         log.error(e.message)
+        if(program.opts().debug){
+            console.log(e)
+        }
     }
 }
 

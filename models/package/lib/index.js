@@ -1,9 +1,13 @@
 'use strict';
 
 const path = require('path');
+const fse = require('fs-extra')
 const pkgDir = require('pkg-dir').sync;
+const npminstall = require('npminstall')
+const pathExists = require('path-exists').sync;
 const { isObject }  = require('@liugezhou-cli-dev/utils');
 const formatPath  = require('@liugezhou-cli-dev/format-path');
+const { getDefaultRegistry,getNpmLatestVersion } = require('@liugezhou-cli-dev/get-npm-info')
 class Package {
     constructor(options){
         if( !options){
@@ -14,7 +18,7 @@ class Package {
         }
         // package路径
         this.targetPath = options.targetPath
-        // package的存储路径
+        // package的缓存存储路径
         this.storeDir = options.storeDir
         // package的name
         this.packageName = options.packageName
@@ -26,14 +30,38 @@ class Package {
     get cacheFilePath() {
         return path.resolve(this.storeDir,`_${this.cacheFilePathPrefix}@${this.packageVersion}@${this.packageName}`)
     }
-    // 判断当前Package是否存在
-    exists(){
 
+    async prepare(){
+      if(this.storeDir && !pathExists(this.storeDir)){
+          fse.mkdirpSync(this.storeDir)
+      }
+      if(this.packageVersion === 'latest'){
+          this.packageVersion = await getNpmLatestVersion(this.packageName);
+      }
+  }
+
+    // 判断当前Package是否存在
+    async exists(){
+        if(this.storeDir){
+          await this.prepare()
+          return pathExists(this.cacheFilePath);
+        }else{
+            return pathExists(this.targetPath);
+        }
     }
 
     // 安装Package
-    install(){
-
+    async install(){
+      await this.prepare()
+      return npminstall({
+        root: this.targetPath,
+        storeDir: this.storeDir,
+        registry:getDefaultRegistry(),
+        pkg:{
+          name:this.packageName,
+          version:this.packageVersion
+        }
+      })
     }
     //更新Package
     update(){

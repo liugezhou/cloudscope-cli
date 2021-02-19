@@ -1,12 +1,16 @@
 'use strict';
 
+const path = require('path')
 const Package = require('@cloudscope-cli/package')
 const log = require('@cloudscope-cli/log')
 
 const SETTINGS = {
-    init: '@cloudscope-cli/init'
+    init: '@imooc-cli/init'
  }
-function exec() {
+
+const CATCH_DIR = 'dependencies'
+
+async function exec() {
     // 1. targetPath -> modulePath
    // 2. modulePath -> Package(npm模块)
    // 3. Package.getRootFile(获取入口文件)
@@ -23,13 +27,34 @@ function exec() {
     const packageVersion = 'latest';
     if(!targetPath){
        //生成缓存路径
+       targetPath = path.resolve(homePath,CATCH_DIR);
+       storeDir = path.resolve(targetPath,'node_modules')
+       log.verbose('targetPath:',targetPath)
+       log.verbose('storeDir:',storeDir)
+       pkg = new Package({
+         targetPath,
+         storeDir,
+         packageName,
+         packageVersion
+      });
+      if(await pkg.exists()){
+         // 更新package
+         log.verbose('更新package')
+         await pkg.update();
+      }else{
+         // 安装package
+         await pkg.install();
+      }
     }else{
       pkg = new Package({
          targetPath,
          packageName,
          packageVersion
       })
-      const rootFile = pkg.getRootFilePath()
+      const rootFile = pkg.getRootFilePath();
+      if(rootFile){
+         require(rootFile).apply(null,arguments);
+      }
     }
 }
 
