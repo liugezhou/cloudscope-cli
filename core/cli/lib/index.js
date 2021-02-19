@@ -8,6 +8,7 @@ const commander = require('commander')
 const path = require('path')
 const log = require('@cloudscope-cli/log')
 const init = require('@cloudscope-cli/init')
+const exec = require('@cloudscope-cli/exec')
 
 const pkg = require('../package.json')
 const constant  = require('./constant')
@@ -93,7 +94,7 @@ function registerCommand(){
     program
     .command('init [projectName]')
     .option('-f, --force','是否强制初始化项目')
-    .action(init);        
+    .action(exec);        
      // 开启debug模式
      program.on('option:debug',function(){
         if(program.opts().debug){
