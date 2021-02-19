@@ -21,13 +21,16 @@ function exec() {
     const cmdName = cmdObj.name(); 
     const packageName = SETTINGS[cmdName];
     const packageVersion = 'latest';
-     pkg = new Package({
-        targetPath,
-        storeDir,
-        packageName,
-        packageVersion
-     })
-     console.log(pkg)
+    if(!targetPath){
+       //生成缓存路径
+    }else{
+      pkg = new Package({
+         targetPath,
+         packageName,
+         packageVersion
+      })
+      const rootFile = pkg.getRootFilePath()
+    }
 }
 
 module.exports = exec;

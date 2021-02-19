@@ -1,7 +1,7 @@
 {
-  "name": "@cloudscope-cli/package",
+  "name": "format-path",
   "version": "1.0.0",
-  "description": "cloudscope-cli npm module",
+  "description": "cloudscope-cli format-path",
   "author": "liumingzhou <18231133236@163.com>",
   "homepage": "https://github.com/liugezhou/cloudscope-cli#readme",
   "license": "ISC",
@@ -13,9 +13,6 @@
   "files": [
     "lib"
   ],
-  "publishConfig": {
-    "access": "public"
-  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/liugezhou/cloudscope-cli.git"
@@ -25,11 +22,5 @@
   },
   "bugs": {
     "url": "https://github.com/liugezhou/cloudscope-cli/issues"
-  },
-  "dependencies": {
-    "@liugezhou-cli-dev/get-npm-info": "file:../../utils/get-npm-info",
-    "@liugezhou-cli-dev/utils": "file:../../utils/utils",
-    "@liugezhou-cli-dev/format-path": "file:../../utils/format-path",
-    "pkg-dir": "^5.0.0"
   }
 }
