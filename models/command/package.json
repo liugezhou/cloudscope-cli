@@ -28,6 +28,7 @@
   },
   "dependencies": {
     "colors": "^1.4.0",
-    "semver": "^7.3.4"
+    "semver": "^7.3.4",
+    "@cloudscope-cli/log": "file:../../utils/log"
   }
 }
