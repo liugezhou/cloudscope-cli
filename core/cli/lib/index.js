@@ -7,7 +7,6 @@ const commander = require('commander')
 
 const path = require('path')
 const log = require('@cloudscope-cli/log')
-const init = require('@cloudscope-cli/init')
 const exec = require('@cloudscope-cli/exec')
 
 const pkg = require('../package.json')
@@ -29,13 +28,6 @@ async function core() {
 
 function checkPkgVersion(){
     log.info('cloudscope-cli version:',pkg.version)
-}
-function checkNodeVersion(){
-    const currentNodeVersion = process.version
-    const lowestNodeVersion = constant.LOWEST_NODE_VERSION
-    if(semver.ltr(currentNodeVersion, lowestNodeVersion)) {
-        throw new Error(colors.red(`cloudscope-cli 需要安装 v${lowestNodeVersion}以上版本的node.js`))
-    }
 }
 
 function checkUserHome(){
@@ -131,7 +123,6 @@ function registerCommand(){
 
 async function prepare(){
     checkPkgVersion()    // 检查包版本
-    checkNodeVersion()  // 检查包版本
     rootCheck()             // root账号启动检查和自动降级
     checkUserHome()     //检查用户主目录
     checkEnv()              // 检查环境变量

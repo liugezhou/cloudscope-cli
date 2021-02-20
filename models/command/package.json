@@ -1,7 +1,7 @@
 {
-  "name": "@cloudscope-cli/init",
+  "name": "@cloudscope-cli/command",
   "version": "1.0.0",
-  "description": "cloudscope-cli init",
+  "description": "cloudscope-cli command",
   "author": "liumingzhou <18231133236@163.com>",
   "homepage": "https://github.com/liugezhou/cloudscope-cli#readme",
   "license": "ISC",
@@ -27,6 +27,7 @@
     "url": "https://github.com/liugezhou/cloudscope-cli/issues"
   },
   "dependencies": {
-    "@cloudscope-cli/command": "file:../../models/command"
+    "colors": "^1.4.0",
+    "semver": "^7.3.4"
   }
 }
