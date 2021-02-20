@@ -28,6 +28,7 @@
   },
   "dependencies": {
     "@cloudscope-cli/package": "file:../../models/package",
-    "@cloudscope-cli/log": "file:../../utils/log"
+    "@cloudscope-cli/log": "file:../../utils/log",
+    "@cloudscope-cli/utils": "file:../../utils/utils"
   }
 }

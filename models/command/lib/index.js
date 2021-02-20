@@ -31,7 +31,7 @@ class Command {
 
     initArgs(){
         const len = this._argv.length - 1
-        this._cmd = this._argv[len].opts()
+        this._cmd = this._argv[len]
         this._argv = this._argv.slice(0,len)
     }
      checkNodeVersion(){
