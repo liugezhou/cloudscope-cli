@@ -9,9 +9,21 @@ class InitCommand extends Command {
         log.verbose(this.force)
     }
     exec(){
-        console.log('init的业务逻辑')
+        try {
+             //1.准备阶段
+        this.prepare()
+        //2.下载模版
+        //3.安装模版
+        } catch (e) {
+            log.error(e.message)
+        }
+       
+    }
+    prepare(){
+        // throw new Error('Test Error')
     }
 }
+
 // function init(projectName,options,command)  {
     // console.log('init',projectName,command.opts().force,process.env.CLI_TARGET_PATH)
 // }
