@@ -6,7 +6,7 @@ const log = require('@cloudscope-cli/log')
 const { exec:spawn } = require("@cloudscope-cli/utils")
 
 const SETTINGS = {
-    init: '@imooc-cli/init'
+    init: '@cloudscope-cli/init'
  }
 
 const CATCH_DIR = 'dependencies'
