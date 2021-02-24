@@ -3,6 +3,7 @@
 const path = require('path')
 const Command = require('@cloudscope-cli/command')
 const Package = require('@cloudscope-cli/package')
+const { spinnerStart,sleep } = require('@cloudscope-cli/utils')
 const log = require('@cloudscope-cli/log')
 const inquirer = require('inquirer')
 const fse = require('fs-extra')
@@ -39,7 +40,6 @@ class InitCommand extends Command {
     }
 
     async downloadTemplate(){
-        console.log(this.template,this.projectInfo)
         const {projectTemplate} = this.projectInfo
         const templateInfo = this.template.find(item=> item.npmName === projectTemplate)
         const targetPath = path.resolve(userHome,'.cloudscope-cli','template')
@@ -54,12 +54,31 @@ class InitCommand extends Command {
         if(await templatePkg.exists()){
             // 更新package
             log.verbose('更新template')
-            await templatePkg.update();
+            const spinner = spinnerStart('正在更新模版...')
+            await sleep();
+            try {
+                await templatePkg.update();
+                log.success('更新模版成功！')
+            } catch (error) {
+                throw new Error(error)
+            } finally{
+                spinner.stop(true)
+            }
         }else{
             // 安装package
             log.verbose('安装template')
-            await templatePkg.install();
-         }
+            const spinner = spinnerStart('正在安装模版...')
+            await sleep();
+            try {
+                await templatePkg.install();
+                log.success('安装模版成功！')
+            } catch (error) {
+                throw new Error(error)
+            } finally{
+                spinner.stop(true);
+            }
+            
+        }
     }
 
     async prepare(){

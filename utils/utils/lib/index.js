@@ -3,6 +3,19 @@
 function isObject(obj){
   return Object.prototype.toString.call(obj).slice(8,-1) === 'Object'
 }
+
+function spinnerStart(msg,spinnerString='|/-\\'){
+  const Spinner = require('cli-spinner').Spinner
+
+  const spinner = new Spinner(`${msg} %s`);
+  spinner.setSpinnerString (spinnerString)
+  spinner.start()
+  return spinner
+}
+
+function sleep(timeout = 1000){
+  return new Promise(resolve => setTimeout(resolve,timeout))
+}
 function exec(command,args,options){
   const win32 = process.platform === 'win32';
   const cmd = win32 ? 'cmd': command
@@ -24,5 +37,7 @@ function execAsync(command,args,options){
 module.exports = {
   isObject,
   exec,
-  execAsync
+  execAsync,
+  spinnerStart,
+  sleep
 };
