@@ -1,8 +1,12 @@
 'use strict';
+
+const path = require('path')
 const Command = require('@cloudscope-cli/command')
+const Package = require('@cloudscope-cli/package')
 const log = require('@cloudscope-cli/log')
 const inquirer = require('inquirer')
 const fse = require('fs-extra')
+const userHome = require('user-home')
 const semver = require('semver')
 const fs = require('fs')
 
@@ -25,7 +29,7 @@ class InitCommand extends Command {
             this.projectInfo = projectInfo
             log.verbose('projectInfo:',projectInfo)
             //2.下载模版
-            this.downloadTemplate()
+            await this.downloadTemplate()
         }
         //3.安装模版
         } catch (e) {
@@ -34,17 +38,31 @@ class InitCommand extends Command {
        
     }
 
-    downloadTemplate(){
-        console.log(this.projectInfo,this.template)
-        //1.通过项目模板API获取项目模板信息
-        //1.1 通过egg.js搭建一套后端系统
-        //1.2通过npm存储项目模版
-        //1.3将项目模版信息存储大盘mongodb中去
-        //1.4通过egg.js获取mongodb中的数据并通过API返回
+    async downloadTemplate(){
+        console.log(this.template,this.projectInfo)
+        const {projectTemplate} = this.projectInfo
+        const templateInfo = this.template.find(item=> item.npmName === projectTemplate)
+        const targetPath = path.resolve(userHome,'.cloudscope-cli','template')
+        const storeDir = path.resolve(userHome,'.cloudscope-cli','template','node_modules')
+        const {npmName,version} = templateInfo
+        const templatePkg = new Package({
+            targetPath,
+            storeDir,
+            packageName:npmName,
+            packageVersion:version
+        })
+        if(await templatePkg.exists()){
+            // 更新package
+            log.verbose('更新template')
+            await templatePkg.update();
+        }else{
+            // 安装package
+            log.verbose('安装template')
+            await templatePkg.install();
+         }
     }
 
     async prepare(){
-        console.log('------------------------')
         //0 判断项目模板是否存在
         const template = await getTemplateProject();
         if(!template || template.length ===0){
@@ -145,6 +163,12 @@ class InitCommand extends Command {
                         return v
                     }
                 }
+            },{
+                type:'list',
+                name:'projectTemplate',
+                message:'请选择项目模版',
+                default:'',
+                choices: this.createTemplateChoise()
             }])
             projectInfo = {
                 type,
@@ -155,6 +179,14 @@ class InitCommand extends Command {
         }
         return projectInfo
     }
+
+    createTemplateChoise(){
+        return this.template.map(item=> ({
+            value:item.npmName,
+            name:item.name
+        }))
+    }
+
     isDirEmpty(localPath){
         let fileList = fs.readdirSync(localPath)
         // 文件过滤逻辑

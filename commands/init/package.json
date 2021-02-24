@@ -29,9 +29,11 @@
   "dependencies": {
     "@cloudscope-cli/command": "file:../../models/command",
     "@cloudscope-cli/log": "file:../../utils/log",
+    "@cloudscope-cli/package": "file:../../models/package",
     "@cloudscope-cli/request": "file:../../utils/request",
     "fs-extra": "^9.1.0",
     "inquirer": "^7.3.3",
-    "semver": "^7.3.4"
+    "semver": "^7.3.4",
+    "user-home": "^2.0.0"
   }
 }
