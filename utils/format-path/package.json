@@ -1,5 +1,5 @@
 {
-  "name": "format-path",
+  "name": "@cloudscope-cli/format-path",
   "version": "1.1.0",
   "description": "cloudscope-cli format-path",
   "author": "liumingzhou <18231133236@163.com>",
@@ -22,5 +22,8 @@
   },
   "bugs": {
     "url": "https://github.com/liugezhou/cloudscope-cli/issues"
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }
