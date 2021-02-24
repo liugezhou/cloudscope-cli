@@ -1,6 +1,6 @@
 {
   "name": "@cloudscope-cli/log",
-  "version": "1.1.1",
+  "version": "1.1.1-alpha.0",
   "description": "@cloudscope-cli log",
   "author": "liumingzhou <18231133236@163.com>",
   "homepage": "https://github.com/liugezhou/cloudscope-cli#readme",
