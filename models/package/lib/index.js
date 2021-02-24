@@ -5,9 +5,9 @@ const fse = require('fs-extra')
 const pkgDir = require('pkg-dir').sync;
 const npminstall = require('npminstall')
 const pathExists = require('path-exists').sync;
-const { isObject }  = require('@liugezhou-cli-dev/utils');
-const formatPath  = require('@liugezhou-cli-dev/format-path');
-const { getDefaultRegistry,getNpmLatestVersion } = require('@liugezhou-cli-dev/get-npm-info')
+const { isObject }  = require('@cloudscope-cli/utils');
+const formatPath  = require('@cloudscope-cli/format-path');
+const { getDefaultRegistry,getNpmLatestVersion } = require('@cloudscope-cli/get-npm-info')
 class Package {
     constructor(options){
         if( !options){

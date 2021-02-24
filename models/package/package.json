@@ -1,6 +1,6 @@
 {
   "name": "@cloudscope-cli/package",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "cloudscope-cli npm module",
   "author": "liumingzhou <18231133236@163.com>",
   "homepage": "https://github.com/liugezhou/cloudscope-cli#readme",
@@ -27,9 +27,9 @@
     "url": "https://github.com/liugezhou/cloudscope-cli/issues"
   },
   "dependencies": {
-    "@liugezhou-cli-dev/format-path": "file:../../utils/format-path",
-    "@liugezhou-cli-dev/get-npm-info": "file:../../utils/get-npm-info",
-    "@liugezhou-cli-dev/utils": "file:../../utils/utils",
+    "@cloudscope-cli/format-path": "file:../../utils/format-path",
+    "@cloudscope-cli/get-npm-info": "file:../../utils/get-npm-info",
+    "@cloudscope-cli/utils": "file:../../utils/utils",
     "fs-extra": "^9.1.0",
     "npminstall": "^4.10.0",
     "path-exists": "^4.0.0",
