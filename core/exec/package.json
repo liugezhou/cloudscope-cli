@@ -1,6 +1,6 @@
 {
   "name": "@cloudscope-cli/exec",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "cloudscope-cli exec",
   "author": "liumingzhou <18231133236@163.com>",
   "homepage": "https://github.com/liugezhou/cloudscope-cli#readme",
@@ -27,8 +27,8 @@
     "url": "https://github.com/liugezhou/cloudscope-cli/issues"
   },
   "dependencies": {
-    "@cloudscope-cli/package": "file:../../models/package",
     "@cloudscope-cli/log": "file:../../utils/log",
+    "@cloudscope-cli/package": "file:../../models/package",
     "@cloudscope-cli/utils": "file:../../utils/utils"
   }
 }
