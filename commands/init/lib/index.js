@@ -6,20 +6,23 @@ const fse = require('fs-extra')
 const semver = require('semver')
 const fs = require('fs')
 
+const getTemplateProject = require('./getProjectTemplate')
+
 const TYPE_PROJECT = 'project'
 const TYPE_COMPONENT = 'component'
 class InitCommand extends Command {
     init(){
         this.projectName = this._argv[0] || '';
         this.force = !!this._cmd.force;
-        log.verbose(this.projectName)
-        log.verbose(this.force)
+        log.verbose('projectName',this.projectName)
+        log.verbose('force',this.force)
     }
     async exec(){
         try {
-             //1.准备阶段
+        //1.准备阶段
         const projectInfo = await this.prepare()
         if(projectInfo){
+            this.projectInfo = projectInfo
             log.verbose('projectInfo:',projectInfo)
             //2.下载模版
             this.downloadTemplate()
@@ -32,6 +35,7 @@ class InitCommand extends Command {
     }
 
     downloadTemplate(){
+        console.log(this.projectInfo,this.template)
         //1.通过项目模板API获取项目模板信息
         //1.1 通过egg.js搭建一套后端系统
         //1.2通过npm存储项目模版
@@ -40,6 +44,13 @@ class InitCommand extends Command {
     }
 
     async prepare(){
+        console.log('------------------------')
+        //0 判断项目模板是否存在
+        const template = await getTemplateProject();
+        if(!template || template.length ===0){
+            throw new Error('项目模版不存在')
+        }
+        this.template = template
         const localPath = process.cwd()
         // 1.判断当前目录是否为空
         if(!this.isDirEmpty(localPath)){
