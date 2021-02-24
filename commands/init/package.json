@@ -28,6 +28,9 @@
   },
   "dependencies": {
     "@cloudscope-cli/command": "file:../../models/command",
-    "@cloudscope-cli/log": "file:../../utils/log"
+    "@cloudscope-cli/log": "file:../../utils/log",
+    "fs-extra": "^9.1.0",
+    "inquirer": "^7.3.3",
+    "semver": "^7.3.4"
   }
 }
