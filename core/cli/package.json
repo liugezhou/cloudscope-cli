@@ -27,8 +27,6 @@
     "commander": "^7.0.0",
     "dotenv": "^8.2.0",
     "import-local": "^3.0.2",
-    "minimist": "^1.2.5",
-    "npmlog": "^4.1.2",
     "path-exists": "^4.0.0",
     "root-check": "^1.0.0",
     "semver": "^7.3.4",
