@@ -18,7 +18,7 @@ const getTemplateProject = require('./getProjectTemplate')
 const TYPE_PROJECT = 'project'
 const TYPE_COMPONENT = 'component'
 const TEMPLATE_TYPE_NORMAL = 'normal'
-const TEMPLATE_TYPE_NORMALCUSTOM = 'costom'
+const TEMPLATE_TYPE_NORMALCUSTOM = 'custom'
 const WHITE_COMMAND =['npm', 'cnpm']
 
 class InitCommand extends Command {
@@ -325,7 +325,30 @@ class InitCommand extends Command {
                 ...project
             }
         }else if (type === TYPE_COMPONENT){
-                // 获取组件的基本信息
+            // 获取组件的基本信息
+            const descriptionPrompt = {
+                type:'input',
+                name:'componentDescription',
+                message:'请输入组件描述信息',
+                default:'',
+                validate:function(v){
+                    const done = this.async()
+                    setTimeout(() => {
+                        if(!v){
+                            done('请输入组件描述信息')
+                            return 
+                        }
+                        done(null,true)
+                    }, 0);
+                }
+            }
+            projectPrompt.push(descriptionPrompt)
+            const component = await inquirer.prompt(projectPrompt)
+            projectInfo = {
+                ...projectInfo,
+                type,
+                ...component
+            }
         }
         //生成className
         if(projectInfo.projectName){
@@ -334,6 +357,9 @@ class InitCommand extends Command {
         }
         if(projectInfo.projectVersion){
             projectInfo.version = projectInfo.projectVersion
+        }
+         if(projectInfo.componentDescription){
+            projectInfo.description = projectInfo.componentDescription
         }
         return projectInfo
     }
