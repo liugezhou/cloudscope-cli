@@ -32,8 +32,11 @@
     "@cloudscope-cli/package": "file:../../models/package",
     "@cloudscope-cli/request": "file:../../utils/request",
     "@cloudscope-cli/utils": "file:../../utils/utils",
+    "ejs": "^3.1.6",
     "fs-extra": "^9.1.0",
+    "glob": "^7.1.6",
     "inquirer": "^7.3.3",
+    "kebab-case": "^1.0.0",
     "semver": "^7.3.4",
     "user-home": "^2.0.0"
   }
