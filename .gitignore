@@ -2,7 +2,15 @@ node_modules
 .vscode
 .idea
 .DS_Store
+package-lock.json
+
+commands/**/node_modules
+core/**/node_modules
+models/**/node_modules
+utils/**/node_modules
+lerna-debug.log
 
 **/node_modules
+
 lerna-debug.log
 

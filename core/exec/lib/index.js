@@ -6,7 +6,8 @@ const log = require('@cloudscope-cli/log')
 const { exec:spawn } = require("@cloudscope-cli/utils")
 
 const SETTINGS = {
-    init: '@cloudscope-cli/init'
+    init: '@cloudscope-cli/init',
+    publish:'@cloudscope-cli/publish',
  }
 
 const CATCH_DIR = 'dependencies'
@@ -61,14 +62,14 @@ async function exec() {
 
          // 在node子进程中调用
          let args = Array.from(arguments).splice(0,2)
-         // const cmd = args[args.length - 2]
-         // const o = Object.create(null)
-         // Object.keys(cmd).forEach(key =>{
-         //    if(cmd.hasOwnProperty(key) && !key.startsWith('_') && key!=='parent'){
-         //       o[key] = cmd[key]
-         //    }
-         // })
-         // args[args.length - 1] = o
+         const cmd = args[args.length - 1]
+         const o = Object.create(null)
+         Object.keys(cmd).forEach(key =>{
+            if(cmd.hasOwnProperty(key) && !key.startsWith('_') && key!=='parent'){
+               o[key] = cmd[key]
+            }
+         })
+         args[args.length - 1] = o
          const code = `require('${rootFile}').call(null,${JSON.stringify(args)})`
          //win32下：cp.spawn('cmd',['/c','node','e',code])
          const child = spawn( 'node',['-e', code],{
