@@ -3,11 +3,12 @@ const Command = require('@cloudscope-cli/command')
 const log = require('@cloudscope-cli/log')
 const fse = require('fs-extra')
 const path = require('path')
-const fs = require('fs')
+const fs = require('fs');
+const Git = require('@cloudscope-cli/git');
 class PublishCommand extends Command {
     init(){
         // 处理参数
-        log.verbose('init',this._argv)
+        log.verbose('publish init',this._argv)
     }
 
     async exec(){
@@ -16,7 +17,8 @@ class PublishCommand extends Command {
             //1. 初始化检查
             this.prepare()
             //2.Git Flow自动化
-
+            const git = new Git(this.projectInfo)
+            git.init()
             //3.云构建 + 云发布
             const endTime = new Date().getTime()
             log.info('本次发布耗时',Math.floor(endTime-startTime)/1000+'秒')
