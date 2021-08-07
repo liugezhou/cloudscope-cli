@@ -26,9 +26,11 @@
   "dependencies": {
     "@cloudscope-cli/log": "file:../../utils/log",
     "@cloudscope-cli/utils": "file:../../utils/utils",
+    "axios": "^0.21.1",
     "fs-extra": "^10.0.0",
     "inquirer": "^8.1.2",
     "simple-git": "^2.42.0",
+    "terminal-link": "^2.1.1",
     "user-home": "^3.0.0"
   }
 }
