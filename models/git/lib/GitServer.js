@@ -35,6 +35,21 @@ class GitServer {
     getTokenHelpUrl(){
         error('getTokenHelpUrl')
     }
+    getRepo(){
+        error('getRepo')
+    }
+
+    // isHttpResponse = (response) =>{
+    //     return response && response.status
+    // }
+
+    handleResponse = (response) =>{
+        if(response.status === 404){
+            return null
+        } else {
+            return response
+        }
+    }
     
 }
 

@@ -30,6 +30,23 @@ class Gitee extends GitServer{
             return res
         })
     }
+    getRepo(login,name){
+        //GET https://gitee.com/api/v5/repos/{owner}/{repo}
+        return this.request
+                .get(`/repos/${login}/${name}`)
+                .then(response =>{
+                    return this.handleResponse(response)
+                })
+    }
+    createRepo(name){
+        // POST https://gitee.com/api/v5/user/repos
+        return this.request.post('/user/repos',{
+            name,
+        })
+    }
+    createOrgRepo(name,login){
+        
+    }
 }
 
 module.exports = Gitee

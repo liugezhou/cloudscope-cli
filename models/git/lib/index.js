@@ -5,7 +5,7 @@ const fs = require('fs')
 const SimpleGit = require('simple-git')
 const userHome = require('user-home')
 const log = require('@cloudscope-cli/log')
-const { readFile,writeFile } = require('@cloudscope-cli/utils')
+const { readFile,writeFile,spinnerStart } = require('@cloudscope-cli/utils')
 const fse = require('fs-extra')
 const inquirer = require('inquirer')
 const terminalLink = require('terminal-link')
@@ -59,6 +59,7 @@ class Git {
         this.orgs = null    //用户所属组织列表
         this.owner = null  //远程仓库类型
         this.login = null   //远程仓库登录名
+        this.repo = null //远程仓库信息
     }
     init(){
         console.log('Git init')
@@ -69,6 +70,7 @@ class Git {
         await this.checkGitToken(); //获取远程仓库Token
         await this.getUserAndOrgs();//获取远程仓库用户和组织信息
         await this.checkGitOwner();//确认远程仓库类型
+        await this.checkRepo(); //  检查并创建远程仓库
     }
     
     checkHomePath(){
@@ -188,6 +190,32 @@ class Git {
         this.login = login
     }
 
+    async checkRepo(){
+        let repo = await this.gitServer.getRepo(this.login,this.name)
+        log.verbose('repo',repo)
+        if(!repo){ //如果远程仓库不存在，就去创建
+            let spinner = spinnerStart('开始创建远程仓库')
+            try {
+                if(this.owner === REPO_OWNER_USER){
+                     repo = await this.gitServer.createRepo(this.name)
+                     log.success('用户个人远程仓库创建成功！')
+                }else{
+                    this.gitServer.createOrgRepo(this.name,this.login)
+                    log.success('用户组织远程仓库创建成功1')
+                }
+            } catch (error) {
+                log.error(error)
+            }finally {
+                spinner.stop(true)
+            }
+            if(!repo){
+                throw new Error('远程仓库创建失败')
+            }
+        }else{
+            log.success('远程仓库已存在且获取成功！')
+        }
+        this.repo = repo
+    }
     createServer(gitServer){
         if(gitServer === GITHUB){
             return new Github()
