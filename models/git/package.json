@@ -24,6 +24,11 @@
     "url": "https://github.com/liugezhou/cloudscope-cli/issues"
   },
   "dependencies": {
-    "simple-git": "^2.42.0"
+    "@cloudscope-cli/log": "file:../../utils/log",
+    "@cloudscope-cli/utils": "file:../../utils/utils",
+    "fs-extra": "^10.0.0",
+    "inquirer": "^8.1.2",
+    "simple-git": "^2.42.0",
+    "user-home": "^3.0.0"
   }
 }

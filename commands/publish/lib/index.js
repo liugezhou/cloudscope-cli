@@ -9,6 +9,9 @@ class PublishCommand extends Command {
     init(){
         // 处理参数
         log.verbose('publish init',this._argv)
+            this.options = {
+                refreshServer:this._argv[0].refreshServer
+            }
     }
 
     async exec(){
@@ -17,8 +20,8 @@ class PublishCommand extends Command {
             //1. 初始化检查
             this.prepare()
             //2.Git Flow自动化
-            const git = new Git(this.projectInfo)
-            git.init()
+            const git = new Git(this.projectInfo,this.options)
+            await git.prepare()
             //3.云构建 + 云发布
             const endTime = new Date().getTime()
             log.info('本次发布耗时',Math.floor(endTime-startTime)/1000+'秒')
