@@ -10,7 +10,8 @@ class PublishCommand extends Command {
         // 处理参数
         log.verbose('publish init',this._argv)
             this.options = {
-                refreshServer:this._argv[0].refreshServer
+                refreshServer:this._argv[0].refreshServer,
+                refreshOwner:this._argv[0].refreshOwner
             }
     }
 

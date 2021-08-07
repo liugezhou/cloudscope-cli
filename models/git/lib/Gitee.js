@@ -11,7 +11,7 @@ class Gitee extends GitServer{
         return 'https://gitee.com/personal_access_tokens';
     }
     getTokenHelpUrl(){
-        return 'https://gitee.com/personal_access_tokens'
+        return 'https://gitee.com/help/articles/4191';
     }
     setToken(token){
         super.setToken(token)
