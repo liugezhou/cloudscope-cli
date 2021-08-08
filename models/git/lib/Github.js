@@ -22,13 +22,28 @@ class Github extends GitServer{
             return response
         })
     }
-    getOrg(username){
+    getOrg(){
         return this.request.get(`/user/orgs`,{
             page:1,
             per_page:100
         }).then(res => {
             return res
         })
+    }
+    getRepo(login,name){
+        return this.request
+                .get(`/repos/${login}/${name}`)
+                .then(response =>{
+                    return this.handleResponse(response)
+                })
+    }
+    createRepo(name){
+        return this.request.post('/user/repos',{
+            name,
+        })
+    }
+    createOrgRepo(name,login){
+        
     }
 }
 

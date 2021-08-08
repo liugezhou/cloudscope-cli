@@ -40,7 +40,7 @@ class Gitee extends GitServer{
     }
     createRepo(name){
         // POST https://gitee.com/api/v5/user/repos
-        return this.request.post('/user/repos',{
+        return this.request.post(`/user/repos`,{
             name,
         })
     }

@@ -192,7 +192,6 @@ class Git {
 
     async checkRepo(){
         let repo = await this.gitServer.getRepo(this.login,this.name)
-        log.verbose('repo',repo)
         if(!repo){ //如果远程仓库不存在，就去创建
             let spinner = spinnerStart('开始创建远程仓库')
             try {
