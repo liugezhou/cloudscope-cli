@@ -23,6 +23,7 @@ const GITHUB = 'github'
 const GITEE ='gitee'
 const REPO_OWNER_USER = 'user'
 const REPO_OWNER_ORG = 'org'
+const GIT_IGNORE_FILE='.gitignore'
 
 const GIT_SERVER_TYPE = [{
     name:'Github',
@@ -71,6 +72,7 @@ class Git {
         await this.getUserAndOrgs();//获取远程仓库用户和组织信息
         await this.checkGitOwner();//确认远程仓库类型
         await this.checkRepo(); //  检查并创建远程仓库
+        this.checkGitIgnore();//检查并创建.gitignore文件
     }
     
     checkHomePath(){
@@ -237,6 +239,37 @@ class Git {
         return gitServer
     }
 
+    checkGitIgnore(){
+        const gitIgnorePath = path.resolve(this.dir,GIT_IGNORE_FILE)
+        console.log(gitIgnorePath)
+        if(!fs.existsSync(gitIgnorePath)){
+            writeFile(gitIgnorePath,`.DS_Store
+node_modules
+/dist
+
+
+# local env files
+.env.local
+.env.*.local
+
+# Log files
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Editor directories and files
+.idea
+.vscode
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+`)
+            log.success(`自动写入${GIT_IGNORE_FILE}文件成功！`)
+        }
+    }
     createPath(file){
         const rootDir = path.resolve(this.homePath,GIT_ROOT_DIR)
         const serverDir = path.resolve(rootDir,file)
