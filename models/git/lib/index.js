@@ -280,6 +280,7 @@ pnpm-debug.log*
             return
         }
         await this.initAndAddRemote();
+        await this.initCommit();
     }
 
     async initAndAddRemote(){
@@ -287,7 +288,6 @@ pnpm-debug.log*
         await this.git.init(this.dir)
         log.info('添加git remote')
         const remotes = await this.git.getRemotes();
-        console.log('git remotes',remotes)
         if(!remotes.find(item => item.name === 'origin')){
             await this.git.addRemote('origin',this.remote)
         }
@@ -299,6 +299,70 @@ pnpm-debug.log*
             log.success('git已完成初始化')
             return true
         }
+    }
+
+    async initCommit(){
+        await this.checkConflicted(); //检查代码冲突
+        await this.checkNotCommitted();//检查代码未提交
+        if(await this.checkRemoteMaster()){ //判断远程仓库master分支是否已存在
+            await this.pullRemoteRepo('master',{
+                '--allow-unrelated-histories':null
+            })
+        } else {
+            await this.pushRemoteRepo('master')  //如果不存在直接push代码
+        }
+
+    }
+    async checkConflicted(){
+        log.info('代码冲突检查')
+        const status = await this.git.status()
+        if(status.conflicted.length > 0 ){
+            throw new Error('当然代码存在冲突，请手动处理合并后再试')
+        }
+        log.success('代码冲突检查通过')
+    }
+
+    async checkNotCommitted(){
+        const status = await this.git.status()
+        if(status.not_added.length >0 || 
+            status.created.length >0 ||
+            status.deleted.length>0 ||
+            status.modified.length>0 ||
+            status.renamed.length>0
+           ){
+            log.verbose('status',status)
+            await this.git.add(status.not_added)
+            await this.git.add(status.created)
+            await this.git.add(status.deleted)
+            await this.git.add(status.modified)
+            await this.git.add(status.renamed)
+            let message;
+            while (!message) {
+                message = (await inquirer.prompt({
+                    type:'text',
+                    name:'message',
+                    message:'请输入commit信息'
+                })).message
+            }
+            await this.git.commit(message)
+            log.success('本次commit提交成功！')
+        }
+    }
+    async checkRemoteMaster(){
+        // git ls-remote
+        return (await this.git.listRemote(['--refs'])).indexOf('refs/heads/master') >=0
+    }
+    async pushRemoteRepo(branchName){
+        log.info(`推送代码至${branchName} 分支`)
+        await this.git.push('origin',branchName)
+        log.success('推送代码成功！')
+    }
+    async pullRemoteRepo(branchName,options){
+        log.info(`同步远程${branchName}分支代码`)
+        await this.git.pull('origin',branchName,options)
+            .catch(err=>{
+                log.error(err.message)
+            })
     }
 }
 
