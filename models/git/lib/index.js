@@ -4,6 +4,7 @@ const path = require('path')
 const fs = require('fs')
 const SimpleGit = require('simple-git')
 const userHome = require('user-home')
+const semver = require('semver')
 const log = require('@cloudscope-cli/log')
 const { readFile,writeFile,spinnerStart } = require('@cloudscope-cli/utils')
 const fse = require('fs-extra')
@@ -24,6 +25,8 @@ const GITEE ='gitee'
 const REPO_OWNER_USER = 'user'
 const REPO_OWNER_ORG = 'org'
 const GIT_IGNORE_FILE='.gitignore'
+const VERSION_RELEASE = 'release'
+const VERSION_DEVELOP = 'dev'
 
 const GIT_SERVER_TYPE = [{
     name:'Github',
@@ -72,6 +75,51 @@ class Git {
         await this.checkRepo(); //  检查并创建远程仓库
         this.checkGitIgnore();//检查并创建.gitignore文件
         await this.init(); //完成本地仓库初始化
+    }
+    async commit(){
+        // 1.生成开发分支
+        await this.getCorrectVersion()
+        // 2.在开发分支上提交代码
+
+        // 3.合并远程开发分支
+
+        //4.推送开发分支
+    }
+
+    async getCorrectVersion(type){
+         // 1.获取远程发布分支
+         // 规范：release/x.y.z ,dev/x.y.z
+         // 版本号递增规范：major/minor/patch
+         log.info('获取远程仓库代码分支')
+         const remoteBranchList = await this.getRemoteBranchList(VERSION_RELEASE)
+         let releaseVersion = null;
+         if(remoteBranchList && remoteBranchList.length>0){
+             releaseVersion = remoteBranchList[0]
+         }
+         log.verbose('releaseVersion',releaseVersion)
+    }
+
+    async getRemoteBranchList(type){
+        const remoteList = await this.git.listRemote(['--refs'])
+        let reg;
+         if(type === VERSION_RELEASE ){
+            reg = /.+?refs\/tags\/release\/(\d+\.\d+\.\d+)/g
+         }else{
+         }
+        return remoteList.split('\n').map(remote =>{
+            const  match = reg.exec(remote)
+            reg.lastIndex = 0
+            if(match &&semver.valid(match[1]) ){
+                return match[1]
+            }
+        }).filter(_ => _ ).sort((a,b) => {
+            if(semver.lte(b,a)){
+                if(a===b) return 0;
+                return -1
+            }
+            return 1
+        })
+        
     }
     
     checkHomePath(){
@@ -276,11 +324,11 @@ pnpm-debug.log*
     }
     
     async init(){
-        if( await this.getRemote()){
+        if( await this.getRemote()){ //如果已经完成了.git初始化那么就不再执行下面的方法
             return
         }
-        await this.initAndAddRemote();
-        await this.initCommit();
+        await this.initAndAddRemote(); // 如果本地仓库没有.git文件，那么就git init 和git remote add origin repos
+        await this.initCommit(); // 在项目初始化的过程中，如果此时代码有.git文件，除了以上两部外，还要检查前代码是否有冲突等操作去推送此时的本地文件代码
     }
 
     async initAndAddRemote(){
