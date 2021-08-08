@@ -93,6 +93,8 @@ function registerCommand(){
 
     program
     .command('publish')
+    .option('--refreshServer','强制更新远程Git仓库类型和token')
+    .option('--refreshOwner','强制更新远程Git仓库用户类型')
     .action(exec)
 
      // 开启debug模式
@@ -122,7 +124,6 @@ function registerCommand(){
     program.parse(program.argv)
     if(program.args && program.args.length < 1) {
         program.outputHelp();
-        console.log()
     }
 }
 
