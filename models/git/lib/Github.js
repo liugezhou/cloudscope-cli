@@ -51,6 +51,9 @@ class Github extends GitServer{
             accept:'application/vnd.github.v3+json'
         })
     }
+    getRemote(login,name){
+        return `git@github.com:${login}/${name}.git`
+    }
 }
 
 module.exports = Github

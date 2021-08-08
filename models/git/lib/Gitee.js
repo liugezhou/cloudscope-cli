@@ -51,6 +51,9 @@ class Gitee extends GitServer{
             name
         })
     }
+    getRemote(login,name){
+        return `git@gitee.com:${login}/${name}.git`
+    }
 }
 
 module.exports = Gitee

@@ -62,9 +62,7 @@ class Git {
         this.login = null   //远程仓库登录名
         this.repo = null //远程仓库信息
     }
-    init(){
-        console.log('Git init')
-    }
+    
     async prepare(){
         this.checkHomePath();// 检查缓存主目录
         await  this.checkGitServer();//检查用户远程仓库类型
@@ -73,6 +71,7 @@ class Git {
         await this.checkGitOwner();//确认远程仓库类型
         await this.checkRepo(); //  检查并创建远程仓库
         this.checkGitIgnore();//检查并创建.gitignore文件
+        await this.init(); //完成本地仓库初始化
     }
     
     checkHomePath(){
@@ -241,7 +240,6 @@ class Git {
 
     checkGitIgnore(){
         const gitIgnorePath = path.resolve(this.dir,GIT_IGNORE_FILE)
-        console.log(gitIgnorePath)
         if(!fs.existsSync(gitIgnorePath)){
             writeFile(gitIgnorePath,`.DS_Store
 node_modules
@@ -277,6 +275,31 @@ pnpm-debug.log*
         return serverDir
     }
     
+    async init(){
+        if( await this.getRemote()){
+            return
+        }
+        await this.initAndAddRemote();
+    }
+
+    async initAndAddRemote(){
+        log.info('执行git初始化')
+        await this.git.init(this.dir)
+        log.info('添加git remote')
+        const remotes = await this.git.getRemotes();
+        console.log('git remotes',remotes)
+        if(!remotes.find(item => item.name === 'origin')){
+            await this.git.addRemote('origin',this.remote)
+        }
+    }
+    async getRemote(){
+        const gitPath = path.resolve(this.dir,GIT_ROOT_DIR)
+        this.remote = this.gitServer.getRemote(this.login,this.name)
+        if(fs.existsSync(gitPath)){
+            log.success('git已完成初始化')
+            return true
+        }
+    }
 }
 
 module.exports = Git;
