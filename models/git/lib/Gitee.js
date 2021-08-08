@@ -42,10 +42,14 @@ class Gitee extends GitServer{
         // POST https://gitee.com/api/v5/user/repos
         return this.request.post(`/user/repos`,{
             name,
+        },{
+            accept:'application/vnd.github.v3+json'
         })
     }
     createOrgRepo(name,login){
-        
+        return this.request.post(`/orgs/${login}/repos`,{
+            name
+        })
     }
 }
 

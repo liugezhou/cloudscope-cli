@@ -199,8 +199,8 @@ class Git {
                      repo = await this.gitServer.createRepo(this.name)
                      log.success('用户个人远程仓库创建成功！')
                 }else{
-                    this.gitServer.createOrgRepo(this.name,this.login)
-                    log.success('用户组织远程仓库创建成功1')
+                    repo = await this.gitServer.createOrgRepo(this.name,this.login)
+                    log.success('用户组织远程仓库创建成功!')
                 }
             } catch (error) {
                 log.error(error)

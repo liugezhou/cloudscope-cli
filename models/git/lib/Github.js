@@ -40,10 +40,16 @@ class Github extends GitServer{
     createRepo(name){
         return this.request.post('/user/repos',{
             name,
+        },{
+            accept:'application/vnd.github.v3+json'
         })
     }
     createOrgRepo(name,login){
-        
+        return this.request.post(`/orgs/${login}/repos`,{
+            name
+        },{
+            accept:'application/vnd.github.v3+json'
+        })
     }
 }
 
