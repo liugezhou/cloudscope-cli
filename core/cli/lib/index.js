@@ -135,3 +135,14 @@ async function prepare(){
     await checkGlobalUpdate() //检查是否需要全局更新
 }
 module.exports = core;
+
+process.on('unhandledRejection', (reason, p) => {
+    //我刚刚捕获了一个未处理的promise rejection, 因为我们已经有了对于未处理错误的后备的处理机制（见下面）, 直接抛出，让它来处理
+    console.log('unhandledRejection', reason,p)
+    throw reason;
+  });
+  process.on('uncaughtException', (error) => {
+    //我刚收到一个从未被处理的错误，现在处理它，并决定是否需要重启应用
+    console.log('uncaughtException',error)
+      process.exit(1);
+  });
