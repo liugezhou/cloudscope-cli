@@ -80,13 +80,53 @@ class Git {
     async commit(){
         // 1.生成开发分支
         await this.getCorrectVersion()
-        // 2.在开发分支上提交代码
-
-        // 3.合并远程开发分支
-
-        //4.推送开发分支
+        // 2.检查stash区
+        await this.checkStash();
+        // 3.检查代码冲突
+        await this.checkConflicted()
+        // 4.检查未提交代码
+        await this.checkNotCommitted();
+        //5.切换开发分支
+        await this.checkoutBranch(this.branch)
+        // 6.合并远程master分支和开发分支代码
+        await this.pullRemoteMasterAndBranch();
+        // 7.将开发分支推送到远程仓库
+        await this.pushRemoteRepo(this.branch);
     }
-
+    
+    async pullRemoteMasterAndBranch(){
+        log.info(`合并[master] -> [${this.branch}]`)
+        await this.pullRemoteRepo('master')
+        log.success('合并远程[mater]分支代码成功')
+        await this.checkConflicted()
+        log.info('检查远程开发分支')
+        const remoteBranchList = await this.getRemoteBranchList()
+       if(remoteBranchList.indexOf(this.version) >=0){
+            log.info(`合并[${this.branch}] -> [${this.branch}]`)
+            await this.pullRemoteRepo(this.branch);
+            log.success(`合并远程[${this.branch}]分支代码成功`)
+            await this.checkConflicted()
+       }else{
+           log.success(`不存在远程分支[${this.branch}]`)
+       }
+    }
+    async checkoutBranch(branch){
+        const localBranchList = await this.git.branchLocal()
+        if(localBranchList.all.indexOf(branch) >-1){
+            await this.git.checkout(branch)
+        }else{
+            await this.git.checkoutLocalBranch(branch)
+        }
+        log.success(`分支切换到${branch}`)
+    }
+    async checkStash(){
+        //1. 检查stash list
+        const stashList = await this.git.stashList()
+        if(stashList.all.length >0){
+            await this.git.stash['pop']
+            log.success('stash pop成功')
+        }
+    }
     async getCorrectVersion(){
          // 1.获取远程发布分支
          // 规范：release/x.y.z ,dev/x.y.z
@@ -145,6 +185,7 @@ class Git {
          if(type === VERSION_RELEASE ){
             reg = /.+?refs\/tags\/release\/(\d+\.\d+\.\d+)/g
          }else{
+            reg = /.+?refs\/heads\/dev\/(\d+\.\d+\.\d+)/g
          }
         return remoteList.split('\n').map(remote =>{
             const  match = reg.exec(remote)
