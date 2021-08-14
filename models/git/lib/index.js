@@ -101,6 +101,7 @@ class Git {
         const cloudBuild = new CloudBuild(this,{
             buildCmd:this.buildCmd
         })
+        cloudBuild.init()
     }
 
     async preparePublish(){
@@ -112,7 +113,6 @@ class Git {
         }else{
             this.buildCmd = 'npm run build'
         }
-        console.log(this.buildCmd)
     }
     async pullRemoteMasterAndBranch(){
         log.info(`合并[master] -> [${this.branch}]`)
