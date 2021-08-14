@@ -7,6 +7,7 @@ const userHome = require('user-home')
 const semver = require('semver')
 const log = require('@cloudscope-cli/log')
 const { readFile,writeFile,spinnerStart } = require('@cloudscope-cli/utils')
+const CloudBuild = require('@cloudscope-cli/cloudbuild')
 const fse = require('fs-extra')
 const inquirer = require('inquirer')
 const terminalLink = require('terminal-link')
@@ -94,6 +95,17 @@ class Git {
         await this.pushRemoteRepo(this.branch);
     }
     
+    async publish(){
+        await this.preparePublish()
+        const buildCmd = ''
+        const cloudBuild = new CloudBuild(this,{
+            buildCmd
+        })
+    }
+
+    async preparePublish(){
+        console.log('preparePublish')
+    }
     async pullRemoteMasterAndBranch(){
         log.info(`合并[master] -> [${this.branch}]`)
         await this.pullRemoteRepo('master')
