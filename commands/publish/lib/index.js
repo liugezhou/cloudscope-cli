@@ -11,7 +11,8 @@ class PublishCommand extends Command {
         log.verbose('publish init',this._argv)
             this.options = {
                 refreshServer:this._argv[0].refreshServer,
-                refreshOwner:this._argv[0].refreshOwner
+                refreshOwner:this._argv[0].refreshOwner,
+                buildCmd:this._argv[0].buildCmd 
             }
     }
 

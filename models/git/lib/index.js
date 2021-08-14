@@ -50,7 +50,7 @@ const GIT_OWNER_TYPE_ONLY = [{
 
 
 class Git {
-    constructor({name, version, dir},{refreshServer =false,refreshOwner=false }){
+    constructor({name, version, dir},{refreshServer =false,refreshOwner=false ,buildCmd} =''){
         this.name = name    //发布项目名称
         this.version = version  //发布项目版本
         this.dir = dir      // 源码目录
@@ -59,6 +59,7 @@ class Git {
         this.homePath = null    //本地缓存目录
         this.refreshServer = refreshServer  //是否重新选择托管平台
         this.refreshOwner = refreshOwner  //是否重新选择用户类型
+        this.buildCmd = buildCmd //构建命令
         this.token = null   // GitServer Token
         this.user = null    //用户信息
         this.orgs = null    //用户所属组织列表
@@ -97,14 +98,21 @@ class Git {
     
     async publish(){
         await this.preparePublish()
-        const buildCmd = ''
         const cloudBuild = new CloudBuild(this,{
-            buildCmd
+            buildCmd:this.buildCmd
         })
     }
 
     async preparePublish(){
-        console.log('preparePublish')
+        if(this.buildCmd){
+            const buildCmdArray = this.buildCmd.split(' ')
+            if(!Object.is(buildCmdArray[0],'npm') && !Object.is(buildCmdArray[0],'cnpm')){
+                throw new Error('Build命令非法，必须使用npm或cnpm！')
+            }
+        }else{
+            this.buildCmd = 'npm run build'
+        }
+        console.log(this.buildCmd)
     }
     async pullRemoteMasterAndBranch(){
         log.info(`合并[master] -> [${this.branch}]`)

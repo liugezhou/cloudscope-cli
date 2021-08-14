@@ -2,7 +2,7 @@
 
 class CloudBuild {
   constructor(git, props){
-      console.log('cloudbuild',git)
+     
   }
   // or http://127.0.0.1:7001/chat
 // const socket = require('socket.io-client')('http://127.0.0.1:7001');

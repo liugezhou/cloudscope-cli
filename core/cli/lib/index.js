@@ -95,6 +95,7 @@ function registerCommand(){
     .command('publish')
     .option('--refreshServer','强制更新远程Git仓库类型和token')
     .option('--refreshOwner','强制更新远程Git仓库用户类型')
+    .option('--buildCmd <buildCmd>','构建命令')
     .action(exec)
 
      // 开启debug模式
