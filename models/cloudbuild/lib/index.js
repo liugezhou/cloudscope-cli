@@ -7,7 +7,7 @@ const TIME_OUT = 5* 60*1000
 const CONNET_TIME_OUT = 5*1000
 const WS_SERVER = 'http://liugezhou.com:7001'
 
-const FAILED_CODE = ['prepare failed']
+const FAILED_CODE = ['prepare failed','download failed','install failed','build failed']
 
 function parseMsg(msg){
   const action = get(msg,'data.action')
@@ -90,9 +90,8 @@ class CloudBuild {
         log.success(parsedMsg.action,parsedMsg.message)
       })
       this.socket.on('building',msg=>{
-        const parsedMsg = parseMsg(msg)
-        log.success(parsedMsg.action,parsedMsg.message)
-      })
+        console.log(msg)
+      }) 
     })
   }
 }
