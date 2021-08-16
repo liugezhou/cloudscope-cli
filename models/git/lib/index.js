@@ -106,6 +106,9 @@ class Git {
     }
 
     async preparePublish(){
+        log.info('开始进行云构建前代码检查')
+        // 是否为前端项目
+        const pkg = this.getPackageJson()
         if(this.buildCmd){
             const buildCmdArray = this.buildCmd.split(' ')
             if(!Object.is(buildCmdArray[0],'npm') && !Object.is(buildCmdArray[0],'cnpm')){
@@ -114,6 +117,20 @@ class Git {
         }else{
             this.buildCmd = 'npm run build'
         }
+        const buildCmdArray = this.buildCmd.split(' ')
+        const lastCmd = buildCmdArray.slice(-1).toString()
+        if(!pkg.scripts || !Object.keys(pkg.scripts).includes(lastCmd)){
+            throw new Error(`${this.buildCmd}命令不存在`)
+        }
+        log.success('云构建代码预检查通过')
+    }
+
+    getPackageJson(){
+        const pkgPath = path.resolve(this.dir,'package.json')
+        if(!fs.existsSync(pkgPath)){
+            throw new Error(`package.json不存在,源码目录:${this.dir}`)
+        }
+        return fse.readJsonSync(pkgPath)
     }
     async pullRemoteMasterAndBranch(){
         log.info(`合并[master] -> [${this.branch}]`)
