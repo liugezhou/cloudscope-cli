@@ -7,7 +7,7 @@ const TIME_OUT = 5* 60*1000
 const CONNET_TIME_OUT = 5*1000
 const WS_SERVER = 'http://liugezhou.com:7001'
 
-const FAILED_CODE = ['prepare failed','download failed','install failed','build failed']
+const FAILED_CODE = ['prepare failed','download failed','install failed','build failed','pre-publish failed','publish failed']
 
 function parseMsg(msg){
   const action = get(msg,'data.action')
@@ -23,6 +23,8 @@ class CloudBuild {
      this.buildCmd = options.buildCmd
      this.timeout = TIME_OUT
      this.socket = null
+     this.type = options.type
+     this.prod = options.prod
   }
 
   doTimeout(fn,timeout){
@@ -31,6 +33,13 @@ class CloudBuild {
     this.timer = setTimeout(fn,timeout);
   }
 
+  prepare(){
+    // 获取OSS文件 
+
+    //判断当前项目OSS文件是否存在
+
+    // 存在且处于正式发布，询问客户是否进行覆盖安装
+  }
    init(){
     return new Promise((resolve,reject)=>{
       const socket = io(WS_SERVER,{
@@ -40,6 +49,8 @@ class CloudBuild {
           branch:this.git.branch,
           version:this.git.version,
           buildCmd:this.buildCmd,
+          type:this.type,
+          prod:this.prod
         }
       })
       const disconnect = ()=>{
@@ -86,8 +97,9 @@ class CloudBuild {
           clearTimeout(this.timer)
           this.socket.disconnect()
           this.socket.close()
+        }else{
+          log.success(parsedMsg.action,parsedMsg.message)
         }
-        log.success(parsedMsg.action,parsedMsg.message)
       })
       this.socket.on('building',msg=>{
         console.log(msg)

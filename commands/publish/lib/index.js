@@ -12,7 +12,8 @@ class PublishCommand extends Command {
             this.options = {
                 refreshServer:this._argv[0].refreshServer,
                 refreshOwner:this._argv[0].refreshOwner,
-                buildCmd:this._argv[0].buildCmd 
+                buildCmd:this._argv[0].buildCmd ,
+                prod:this._argv[0].prod
             }
     }
 

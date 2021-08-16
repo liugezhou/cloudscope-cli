@@ -20,6 +20,7 @@ const GIT_SERVER_FILE = '.git_server'
 const GIT_TOKEN_FILE = '.git_token'
 const GIT_OWN_FILE = '.git_own'
 const GIT_LOGIN_FILE = '.git_login'
+const GIT_PUBLISH_FILE='.git_publish'
 
 const GITHUB = 'github'
 const GITEE ='gitee'
@@ -47,10 +48,17 @@ const GIT_OWNER_TYPE_ONLY = [{
     name:'个人',
     value: REPO_OWNER_USER
 }]
-
+const GIT_PUBLISH_TYPE=[{
+    name:'OSS',
+    value:'oss'
+}]
 
 class Git {
-    constructor({name, version, dir},{refreshServer =false,refreshOwner=false ,buildCmd} =''){
+    constructor({name, version, dir},{
+        refreshServer = false,
+        refreshOwner = false ,
+        buildCmd  = '',
+        prod  = false }){
         this.name = name    //发布项目名称
         this.version = version  //发布项目版本
         this.dir = dir      // 源码目录
@@ -60,6 +68,7 @@ class Git {
         this.refreshServer = refreshServer  //是否重新选择托管平台
         this.refreshOwner = refreshOwner  //是否重新选择用户类型
         this.buildCmd = buildCmd //构建命令
+        this.prod = prod //正式环境命令
         this.token = null   // GitServer Token
         this.user = null    //用户信息
         this.orgs = null    //用户所属组织列表
@@ -67,6 +76,7 @@ class Git {
         this.login = null   //远程仓库登录名
         this.repo = null //远程仓库信息
         this.branch = null //本地开发分支
+        this.gitPublish=null //缓存文件.git_publish内容,静态资源服务器类型
     }
     
     async prepare(){
@@ -99,8 +109,11 @@ class Git {
     async publish(){
         await this.preparePublish()
         const cloudBuild = new CloudBuild(this,{
-            buildCmd:this.buildCmd
+            buildCmd:this.buildCmd,
+            type:this.gitPublish ,
+            prod:this.prod
         })
+        // await cloudBuild.prepare()
         await cloudBuild.init()
         await cloudBuild.build()
     }
@@ -123,6 +136,15 @@ class Git {
             throw new Error(`${this.buildCmd}命令不存在`)
         }
         log.success('云构建代码预检查通过')
+        const gitPublishPath = this.createPath(GIT_PUBLISH_FILE)
+        let gitPublish = readFile(gitPublishPath)
+        if(!gitPublish){ // 如果没有读取到.git-publish文件中的内容
+            gitPublish = await this.choicePublish(gitPublishPath)
+            log.success('git publish 写入成功',`${gitPublish} -> ${gitPublishPath}`)
+        }else{ // 如果读取到了 内容
+           log.success('git publish 文件读取成功！')
+        }
+        this.gitPublish = gitPublish
     }
 
     getPackageJson(){
@@ -405,6 +427,16 @@ class Git {
         return gitServer
     }
 
+    async choicePublish(gitPublishPath){
+        const gitPublish = (await inquirer.prompt({
+            type:'list',
+            name:'gitPublish',
+            message:'请选择你想要上传代码的平台',
+            choices:GIT_PUBLISH_TYPE
+        })).gitPublish;
+        writeFile(gitPublishPath,gitPublish)
+        return gitPublish
+    }
     checkGitIgnore(){
         const gitIgnorePath = path.resolve(this.dir,GIT_IGNORE_FILE)
         if(!fs.existsSync(gitIgnorePath)){
