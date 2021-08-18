@@ -25,6 +25,8 @@
   },
   "dependencies": {
     "@cloudscope-cli/log": "file:../../utils/log",
+    "@cloudscope-cli/request": "file:../../utils/request",
+    "inquirer": "^8.1.2",
     "lodash": "^4.17.21",
     "socket.io-client": "^2.0.1"
   }

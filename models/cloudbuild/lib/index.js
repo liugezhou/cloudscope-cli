@@ -1,8 +1,10 @@
 'use strict';
 
 const io = require('socket.io-client');
+const inquirer = require('inquirer')
 const log = require('@cloudscope-cli/log')
 const get =require('lodash/get')
+const getProjectOSS = require('./getProjectOSS')
 const TIME_OUT = 5* 60*1000
 const CONNET_TIME_OUT = 5*1000
 const WS_SERVER = 'http://liugezhou.com:7001'
@@ -33,12 +35,37 @@ class CloudBuild {
     this.timer = setTimeout(fn,timeout);
   }
 
-  prepare(){
-    // 获取OSS文件 
-
-    //判断当前项目OSS文件是否存在
-
-    // 存在且处于正式发布，询问客户是否进行覆盖安装
+  async prepare(){
+    // 判断是否处于正式发布
+    if(this.prod){
+    // 1.获取OSS文件 
+      const name = this.git.name
+      const type = this.prod ? 'prod':'dev'
+      const ossProject = await getProjectOSS({name,type})
+      console.log(ossProject)
+    //2.判断当前项目OSS文件是否存在
+      if(Object.is(ossProject.code,0) && ossProject.data.length>0){
+    // 3.询问客户是否进行覆盖安装
+        const cover = (await inquirer.prompt({
+          type:'list',
+          defaultValue:true,
+          name:'cover',
+          message:`OSS已存在[${name}]项目，是否强行覆盖发布？`,
+          choices:[{
+            name:'覆盖发布',
+            value:true
+          },{
+            name:'放弃发布',
+            value:false
+          }]
+        })).cover
+        if(!cover){ //放弃发布
+          throw new Error('发布终止')
+        }
+      }
+    
+    }
+   
   }
    init(){
     return new Promise((resolve,reject)=>{
