@@ -11,6 +11,8 @@ const request = require('@cloudscope-cli/request')
 const CloudBuild = require('@cloudscope-cli/cloudbuild')
 const fse = require('fs-extra')
 const inquirer = require('inquirer')
+const { Observable } = require('rxjs');
+const Listr = require('listr');
 const terminalLink = require('terminal-link')
 const Github = require('./Github')
 const Gitee = require('./Gitee');
@@ -128,8 +130,138 @@ class Git {
         if(ret){
             await this.uploadTemplate();
         }
+        if (this.prod && ret) {
+            this.runCreateTagTask();
+          }
     }
 
+    async deleteRemoteBranch() {
+        // log.info('开始删除远程分支', this.branch);
+        await this.git.push(['origin', '--delete', this.branch]);
+        // log.success('删除远程分支成功', this.branch);
+      }
+
+    async deleteLocalBranch() {
+        // log.info('开始删除本地开发分支', this.branch);
+        await this.git.deleteLocalBranch(this.branch);
+        // log.success('删除本地分支成功', this.branch);
+    }
+    async mergeBranchToMaster() {
+        // log.info('开始合并代码', `[${this.branch}] -> [master]`);
+        await this.git.mergeFromTo(this.branch, 'master');
+        // log.success('代码合并成功', `[${this.branch}] -> [master]`);
+      }
+
+    async checkTag() {
+        // log.info('获取远程 tag 列表');
+        const tag = `${VERSION_RELEASE}/${this.version}`;
+        const tagList = await this.getRemoteBranchList(VERSION_RELEASE);
+        if (tagList.includes(this.version)) {
+          // log.success('远程 tag 已存在', tag);
+          await this.git.push(['origin', `:refs/tags/${tag}`]);
+          // log.success('远程 tag 已删除', tag);
+        }
+        const localTagList = await this.git.tags();
+        if (localTagList.all.includes(tag)) {
+          // log.success('本地 tag 已存在', tag);
+          await this.git.tag(['-d', tag]);
+          // log.success('本地 tag 已删除', tag);
+        }
+        await this.git.addTag(tag);
+        // log.success('本地 tag 创建成功', tag);
+        await this.git.pushTags('origin');
+        // log.success('远程 tag 推送成功', tag);
+      }
+
+    // 自动生成远程仓库分支
+    runCreateTagTask() {
+        const delay = fn => setTimeout(fn, 1000);
+        const tasks = new Listr([
+        {
+            title: '自动生成远程仓库Tag',
+            task: () => new Listr([{
+            title: '创建Tag',
+            task: () => {
+                return new Observable(o => {
+                o.next('正在创建Tag');
+                delay(() => {
+                    this.checkTag().then(() => {
+                    o.complete();
+                    });
+                });
+                });
+            },
+            },
+            {
+                title: '切换分支到master',
+                task: () => {
+                return new Observable(o => {
+                    o.next('正在切换master分支');
+                    delay(() => {
+                    this.checkoutBranch('master').then(() => {
+                        o.complete();
+                    });
+                    });
+                });
+                },
+            },
+            {
+                title: '将开发分支代码合并到master',
+                task: () => {
+                return new Observable(o => {
+                    o.next('正在合并到master分支');
+                    delay(() => {
+                    this.mergeBranchToMaster('master').then(() => {
+                        o.complete();
+                    });
+                    });
+                });
+                },
+            },
+            {
+                title: '将代码推送到远程master',
+                task: () => {
+                return new Observable(o => {
+                    o.next('正在推送master分支');
+                    delay(() => {
+                    this.pushRemoteRepo('master').then(() => {
+                        o.complete();
+                    });
+                    });
+                });
+                },
+            },
+            {
+                title: '删除本地开发分支',
+                task: () => {
+                return new Observable(o => {
+                    o.next('正在删除本地开发分支');
+                    delay(() => {
+                    this.deleteLocalBranch().then(() => {
+                        o.complete();
+                    });
+                    });
+                });
+                },
+            },
+            {
+                title: '删除远程开发分支',
+                task: () => {
+                return new Observable(o => {
+                    o.next('正在删除远程开发分支');
+                    delay(() => {
+                    this.deleteRemoteBranch().then(() => {
+                        o.complete();
+                    });
+                    });
+                });
+                },
+            },
+            ]),
+        }]);
+
+        tasks.run();
+  }
     async uploadTemplate() {
         const TEMPLATE_FILE_NAME = 'index.html';
         if (this.sshUser && this.sshIp && this.sshPath) {
