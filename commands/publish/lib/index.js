@@ -13,7 +13,10 @@ class PublishCommand extends Command {
                 refreshServer:this._argv[0].refreshServer,
                 refreshOwner:this._argv[0].refreshOwner,
                 buildCmd:this._argv[0].buildCmd ,
-                prod:this._argv[0].prod
+                prod:this._argv[0].prod,
+                sshUser:this._argv[0].sshUser,
+                sshIp:this._argv[0].sshIp,
+                sshPath:this._argv[0].sshPath,
             }
     }
 

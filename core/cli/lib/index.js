@@ -97,6 +97,9 @@ function registerCommand(){
     .option('--refreshOwner','强制更新远程Git仓库用户类型')
     .option('--buildCmd <buildCmd>','构建命令')
     .option('--prod','是否正式发布')
+    .option('--sshUser <sshUser>','服务器用户名')
+    .option('--sshIp <sshIp>','服务器IP或域名')
+    .option('--sshPath <sshPath>','服务器上传路径')
     .action(exec)
 
      // 开启debug模式

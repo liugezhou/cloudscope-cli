@@ -42,7 +42,6 @@ class CloudBuild {
       const name = this.git.name
       const type = this.prod ? 'prod':'dev'
       const ossProject = await getProjectOSS({name,type})
-      console.log(ossProject)
     //2.判断当前项目OSS文件是否存在
       if(Object.is(ossProject.code,0) && ossProject.data.length>0){
     // 3.询问客户是否进行覆盖安装
@@ -115,6 +114,7 @@ class CloudBuild {
   }
 
    build(){
+     let ret = true
     return new Promise((resolve,reject)=>{
       this.socket.emit('build')
       this.socket.on("build",msg=>{
@@ -124,6 +124,7 @@ class CloudBuild {
           clearTimeout(this.timer)
           this.socket.disconnect()
           this.socket.close()
+          ret = false
         }else{
           log.success(parsedMsg.action,parsedMsg.message)
         }
@@ -131,6 +132,12 @@ class CloudBuild {
       this.socket.on('building',msg=>{
         console.log(msg)
       }) 
+      this.socket.on('disconnect',()=>{
+        resolve(ret)
+      })
+      this.socket.on('error',(err)=>{
+        reject(err)
+      })
     })
   }
 }

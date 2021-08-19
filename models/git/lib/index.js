@@ -7,6 +7,7 @@ const userHome = require('user-home')
 const semver = require('semver')
 const log = require('@cloudscope-cli/log')
 const { readFile,writeFile,spinnerStart } = require('@cloudscope-cli/utils')
+const request = require('@cloudscope-cli/request')
 const CloudBuild = require('@cloudscope-cli/cloudbuild')
 const fse = require('fs-extra')
 const inquirer = require('inquirer')
@@ -29,6 +30,7 @@ const REPO_OWNER_ORG = 'org'
 const GIT_IGNORE_FILE='.gitignore'
 const VERSION_RELEASE = 'release'
 const VERSION_DEVELOP = 'dev'
+const TEMPLATE_TEMP_DIR = 'oss';
 
 const GIT_SERVER_TYPE = [{
     name:'Github',
@@ -58,7 +60,11 @@ class Git {
         refreshServer = false,
         refreshOwner = false ,
         buildCmd  = '',
-        prod  = false }){
+        prod  = false,
+        sshUser = '',
+        sshIp = '',
+        sshPath = ''
+        }){
         this.name = name    //发布项目名称
         this.version = version  //发布项目版本
         this.dir = dir      // 源码目录
@@ -67,6 +73,9 @@ class Git {
         this.homePath = null    //本地缓存目录
         this.refreshServer = refreshServer  //是否重新选择托管平台
         this.refreshOwner = refreshOwner  //是否重新选择用户类型
+        this.sshUser =sshUser
+        this.sshIp =sshIp
+        this.sshPath =sshPath
         this.buildCmd = buildCmd //构建命令
         this.prod = prod //正式环境命令
         this.token = null   // GitServer Token
@@ -113,10 +122,53 @@ class Git {
             type:this.gitPublish ,
             prod:this.prod
         })
-        // await cloudBuild.prepare()
+        await cloudBuild.prepare()
         await cloudBuild.init()
-        await cloudBuild.build()
+        const ret = await cloudBuild.build()
+        if(ret){
+            await this.uploadTemplate();
+        }
     }
+
+    async uploadTemplate() {
+        const TEMPLATE_FILE_NAME = 'index.html';
+        if (this.sshUser && this.sshIp && this.sshPath) {
+          log.info('开始下载模板文件');
+          let ossTemplateFile = await request({
+            url: '/oss/get',
+            params: {
+              name: this.name,
+              type: this.prod ? 'prod' : 'dev',
+              file: TEMPLATE_FILE_NAME,
+            },
+          });
+          if (ossTemplateFile.code === 0 && ossTemplateFile.data) {
+            ossTemplateFile = ossTemplateFile.data;
+          }
+          log.verbose('模板文件url:', ossTemplateFile.url);
+          const response = await request({
+            url: ossTemplateFile.url,
+          });
+          if (response) {
+            const ossTempDir = path.resolve(this.homePath, TEMPLATE_TEMP_DIR, `${this.name}@${this.version}`);
+            if (!fs.existsSync(ossTempDir)) {
+              fse.mkdirpSync(ossTempDir);
+            } else {
+              fse.emptyDirSync(ossTempDir);
+            }
+            const templateFilePath = path.resolve(ossTempDir, TEMPLATE_FILE_NAME);
+            fse.createFileSync(templateFilePath);
+            fs.writeFileSync(templateFilePath, response);
+            log.success('模板文件下载成功', templateFilePath);
+            log.info('开始上传模板文件至服务器');
+            const uploadCmd = `scp -r ${templateFilePath} ${this.sshUser}@${this.sshIp}:${this.sshPath}`;
+            log.verbose('uploadCmd', uploadCmd);
+            const ret = require('child_process').execSync(uploadCmd);
+            log.success('模板文件上传成功');
+            fse.emptyDirSync(ossTempDir);
+          }
+        }
+      }
 
     async preparePublish(){
         log.info('开始进行云构建前代码检查')
