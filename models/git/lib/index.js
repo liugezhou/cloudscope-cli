@@ -176,88 +176,87 @@ class Git {
     // 自动生成远程仓库分支
     runCreateTagTask() {
         const delay = fn => setTimeout(fn, 1000);
-        const tasks = new Listr([
-        {
+        const tasks = new Listr([{
             title: '自动生成远程仓库Tag',
             task: () => new Listr([{
-            title: '创建Tag',
-            task: () => {
-                return new Observable(o => {
-                o.next('正在创建Tag');
-                delay(() => {
-                    this.checkTag().then(() => {
-                    o.complete();
-                    });
-                });
-                });
-            },
-            },
-            {
-                title: '切换分支到master',
+                title: '创建Tag',
                 task: () => {
-                return new Observable(o => {
-                    o.next('正在切换master分支');
+                    return new Observable(o => {
+                    o.next('正在创建Tag');
                     delay(() => {
-                    this.checkoutBranch('master').then(() => {
+                        this.checkTag().then(() => {
                         o.complete();
+                        });
                     });
                     });
-                });
                 },
-            },
-            {
-                title: '将开发分支代码合并到master',
-                task: () => {
-                return new Observable(o => {
-                    o.next('正在合并到master分支');
-                    delay(() => {
-                    this.mergeBranchToMaster('master').then(() => {
-                        o.complete();
-                    });
-                    });
-                });
                 },
-            },
-            {
-                title: '将代码推送到远程master',
-                task: () => {
-                return new Observable(o => {
-                    o.next('正在推送master分支');
-                    delay(() => {
-                    this.pushRemoteRepo('master').then(() => {
-                        o.complete();
+                {
+                    title: '切换分支到master',
+                    task: () => {
+                    return new Observable(o => {
+                        o.next('正在切换master分支');
+                        delay(() => {
+                        this.checkoutBranch('master').then(() => {
+                            o.complete();
+                        });
+                        });
                     });
-                    });
-                });
+                    },
                 },
-            },
-            {
-                title: '删除本地开发分支',
-                task: () => {
-                return new Observable(o => {
-                    o.next('正在删除本地开发分支');
-                    delay(() => {
-                    this.deleteLocalBranch().then(() => {
-                        o.complete();
+                {
+                    title: '将开发分支代码合并到master',
+                    task: () => {
+                    return new Observable(o => {
+                        o.next('正在合并到master分支');
+                        delay(() => {
+                        this.mergeBranchToMaster('master').then(() => {
+                            o.complete();
+                        });
+                        });
                     });
-                    });
-                });
+                    },
                 },
-            },
-            {
-                title: '删除远程开发分支',
-                task: () => {
-                return new Observable(o => {
-                    o.next('正在删除远程开发分支');
-                    delay(() => {
-                    this.deleteRemoteBranch().then(() => {
-                        o.complete();
+                {
+                    title: '将代码推送到远程master',
+                    task: () => {
+                    return new Observable(o => {
+                        o.next('正在推送master分支');
+                        delay(() => {
+                        this.pushRemoteRepo('master').then(() => {
+                            o.complete();
+                        });
+                        });
                     });
-                    });
-                });
+                    },
                 },
-            },
-            ]),
+                {
+                    title: '删除本地开发分支',
+                    task: () => {
+                    return new Observable(o => {
+                        o.next('正在删除本地开发分支');
+                        delay(() => {
+                        this.deleteLocalBranch().then(() => {
+                            o.complete();
+                        });
+                        });
+                    });
+                    },
+                },
+                {
+                    title: '删除远程开发分支',
+                    task: () => {
+                    return new Observable(o => {
+                        o.next('正在删除远程开发分支');
+                        delay(() => {
+                        this.deleteRemoteBranch().then(() => {
+                            o.complete();
+                        });
+                        });
+                    });
+                    },
+                },
+                ]),
         }]);
 
         tasks.run();
