@@ -20,6 +20,7 @@ const TYPE_COMPONENT = 'component'
 const TEMPLATE_TYPE_NORMAL = 'normal'
 const TEMPLATE_TYPE_NORMALCUSTOM = 'custom'
 const WHITE_COMMAND =['npm', 'cnpm']
+const COMPONENT_FILE = '.componentrc'
 
 class InitCommand extends Command {
     init(){
@@ -69,11 +70,12 @@ class InitCommand extends Command {
         //拷贝模板代码至当前目录
         const spinner = spinnerStart('正在安装模板...')
         await sleep()
+        //当前执行脚手架目录
+        const targetPath = process.cwd()
         try {
             // 去缓存目录中拿template下的文件路径
             const templatePath = path.resolve(this.templateNpm.cacheFilePath,'template')
-            //当前执行脚手架目录
-            const targetPath = process.cwd()
+            
             fse.ensureDirSync(templatePath)//确保使用前缓存生成目录存在，若不存在则创建
             fse.ensureDirSync(targetPath)   //确保当前脚手架安装目录存在，若不存在则创建
             fse.copySync(templatePath,targetPath) //将缓存目录下文件copy至当前目录
@@ -87,11 +89,29 @@ class InitCommand extends Command {
         const  templateIgnore = this.templateInfo.ignore || []
         const ignore = ['**/node_modules/**',...templateIgnore]
         await this.ejsRender({ignore})
+        //如果是组件，则生成组件配置文件
+        await this.createComponentFile(targetPath)
         const { installCommand,startCommand } = this.templateInfo
         //依赖安装
         await this.execCommand(installCommand,'依赖过程安装失败！')
         //启动命令执行
         await this.execCommand(startCommand,'启动命令执行失败！')
+    }
+
+    async createComponentFile(targetPath){
+        const templateInfo = this.templateInfo
+        const projectInfo = this.projectInfo
+        if(templateInfo.tag.includes(TYPE_COMPONENT)){
+            const componentData = {
+                ...projectInfo,
+                buildPath:templateInfo.buildPath,
+                examplePath:templateInfo.examplePath,
+                npmName: templateInfo.npmName,
+                npmVersion:templateInfo.version
+            }
+            const componentFile = path.resolve(targetPath,COMPONENT_FILE)
+            fs.writeFileSync(componentFile,JSON.stringify(componentData))
+        }
     }
     async installCustomTemplate(){
         //查询自定义模版的入口文件
@@ -239,7 +259,7 @@ class InitCommand extends Command {
 
     async getProjectInfo(){
         function isValidName(v) {
-            return /^[a-zA-Z]+([-][a-zA-Z][a-zA-Z0-9]*|[_][a-zA-Z][a-zA-Z0-9]*|[a-zA-Z0-9])*$/.test(v);
+            return /^(@[a-zA-Z0-9_-]+\/)?[a-zA-Z]+([-][a-zA-Z][a-zA-Z0-9]*|[_][a-zA-Z][a-zA-Z0-9]*|[a-zA-Z0-9])*$/.test(v);
         } 
         let projectInfo = {};
         let isProjectNameValid = false //默认情况项目名称不合法 
