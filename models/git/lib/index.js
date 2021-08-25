@@ -33,6 +33,7 @@ const GIT_IGNORE_FILE='.gitignore'
 const VERSION_RELEASE = 'release'
 const VERSION_DEVELOP = 'dev'
 const TEMPLATE_TEMP_DIR = 'oss';
+const COMPONENT_FILE='.componentrc'
 
 const GIT_SERVER_TYPE = [{
     name:'Github',
@@ -67,7 +68,12 @@ class Git {
         sshIp = '',
         sshPath = ''
         }){
-        this.name = name    //发布项目名称
+        if(name.startsWith('@') && name.indexOf('/')>0){
+            const nameArray = name.split('/')
+            this.name = nameArray.join('_').replace('@','')
+        }else{
+            this.name = name    //发布项目名称
+        }
         this.version = version  //发布项目版本
         this.dir = dir      // 源码目录
         this.git = SimpleGit(dir)   //SimpleGit实例
@@ -98,6 +104,7 @@ class Git {
         await this.checkGitOwner();//确认远程仓库类型
         await this.checkRepo(); //  检查并创建远程仓库
         this.checkGitIgnore();//检查并创建.gitignore文件
+        await this.checkComponent(); // 组件合法性检查
         await this.init(); //完成本地仓库初始化
     }
     async commit(){
@@ -118,28 +125,43 @@ class Git {
     }
     
     async publish(){
-        await this.preparePublish()
-        const cloudBuild = new CloudBuild(this,{
-            buildCmd:this.buildCmd,
-            type:this.gitPublish ,
-            prod:this.prod
-        })
-        await cloudBuild.prepare()
-        await cloudBuild.init()
-        const ret = await cloudBuild.build()
-        if(ret){
-            await this.uploadTemplate();
+        let ret = false;
+        if(this.isComponent()){
+            log.info('开始发布组件')
+            await this.saveComponentToDB()
+        }else{
+            await this.preparePublish()
+            const cloudBuild = new CloudBuild(this,{
+                buildCmd:this.buildCmd,
+                type:this.gitPublish ,
+                prod:this.prod
+            })
+            await cloudBuild.prepare()
+            await cloudBuild.init()
+            ret = await cloudBuild.build()
+            if(ret){
+                await this.uploadTemplate();
+            }
         }
         if (this.prod && ret) {
+            await this.uploadComponentToNpm()    
             this.runCreateTagTask();
-          }
+        }
     }
 
+    async saveComponentToDB(){
+        // 将组件信息上传至数据库-RDS
+
+        // 将组件多预览页面上传至OSS
+    }
+    async uploadComponentToNpm(){
+        // 完成组件上传至npm
+    }
     async deleteRemoteBranch() {
         // log.info('开始删除远程分支', this.branch);
         await this.git.push(['origin', '--delete', this.branch]);
         // log.success('删除远程分支成功', this.branch);
-      }
+    }
 
     async deleteLocalBranch() {
         // log.info('开始删除本地开发分支', this.branch);
@@ -150,7 +172,7 @@ class Git {
         // log.info('开始合并代码', `[${this.branch}] -> [master]`);
         await this.git.mergeFromTo(this.branch, 'master');
         // log.success('代码合并成功', `[${this.branch}] -> [master]`);
-      }
+    }
 
     async checkTag() {
         // log.info('获取远程 tag 列表');
@@ -171,7 +193,7 @@ class Git {
         // log.success('本地 tag 创建成功', tag);
         await this.git.pushTags('origin');
         // log.success('远程 tag 推送成功', tag);
-      }
+    }
 
     // 自动生成远程仓库分支
     runCreateTagTask() {
@@ -260,7 +282,32 @@ class Git {
         }]);
 
         tasks.run();
-  }
+    }
+    async checkComponent(){
+        let componentFile = this.isComponent()
+        if(componentFile){
+            log.info('开始检查build结果')
+            if(!this.buildCmd){
+                this.buildCmd = 'npm run build'
+            }
+            require('child_process').execSync(this.buildCmd,{
+                cwd:this.dir
+            })
+            const buildPath = path.resolve(this.dir,componentFile.buildPath)
+            if(!fs.existsSync(buildPath)){
+                throw new Error(`构建结果：${buildPath}不存在！`)
+            }
+            const pkg = this.getPackageJson()
+            if(!pkg.files || !pkg.files.includes(componentFile.buildPath)){
+                throw new Error(`packages.json中files属性未添加构建结果目录：[${componentFile.buildPath}],请在packag.json中收到添加`)
+            }
+            log.success('build结果检查通过！')
+        }
+    }
+    isComponent(){
+        const componentFilePath = path.resolve(this.dir,COMPONENT_FILE);
+        return fs.existsSync(componentFilePath) && fse.readJsonSync(componentFilePath)
+    }
     async uploadTemplate() {
         const TEMPLATE_FILE_NAME = 'index.html';
         if (this.sshUser && this.sshIp && this.sshPath) {
@@ -299,7 +346,7 @@ class Git {
             fse.emptyDirSync(ossTempDir);
           }
         }
-      }
+    }
 
     async preparePublish(){
         log.info('开始进行云构建前代码检查')
