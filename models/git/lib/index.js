@@ -16,6 +16,7 @@ const Listr = require('listr');
 const terminalLink = require('terminal-link')
 const Github = require('./Github')
 const Gitee = require('./Gitee');
+const ComponentRequest = require('../lib/ComponentRequest');
 
 const DEFAULT_CLI_HOME = '.cloudscope-cli'
 const GIT_ROOT_DIR = '.git'
@@ -151,8 +152,34 @@ class Git {
 
     async saveComponentToDB(){
         // 将组件信息上传至数据库-RDS
-
-        // 将组件多预览页面上传至OSS
+        log.info('上传组件信息至OSS+写入数据库')
+        const componentFile = this.isComponent()
+        let componentExamplePath = path.resolve(this.dir,componentFile.examplePath);
+        let dirs = fs.readdirSync(componentExamplePath)
+        if(dirs.includes('dist')){
+            componentExamplePath = path.resolve(componentExamplePath,'dist')
+            dirs = fs.readdirSync(componentExamplePath)
+            componentFile.examplePath = `${componentFile.examplePath}/dist`
+        }
+        dirs = dirs.filter(dir => dir.match(/^index(\d)*.html$/))
+        componentFile.exampleList = dirs
+        componentFile.exampleRealPath = componentExamplePath
+        const data = await ComponentRequest.createComponent({
+            component:componentFile,
+            git: {
+              type: this.gitServer.type,
+              remote: this.remote,
+              version: this.version,
+              branch: this.branch,
+              login: this.login,
+              owner: this.owner,
+            },
+        })
+        if (!data) {
+            throw new Error('上传组件失败');
+          }
+          // 2.将组件多预览页面上传至OSS
+          return true;
     }
     async uploadComponentToNpm(){
         // 完成组件上传至npm
